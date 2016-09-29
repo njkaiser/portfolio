@@ -1,0 +1,9 @@
+link: https://youtu.be/6oRmvFbvxMU
+
+embed: <iframe width="1280" height="720" src="https://www.youtube.com/embed/6oRmvFbvxMU" frameborder="0" allowfullscreen></iframe>
+
+
+
+link: https://youtu.be/0Ja_fTumbvw
+
+embed: <iframe width="1280" height="720" src="https://www.youtube.com/embed/0Ja_fTumbvw" frameborder="0" allowfullscreen></iframe>
