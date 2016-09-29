@@ -8,7 +8,7 @@
 		1. add resume link
 		2. fb/linkedin/mailto/youtube channel icons w/ links?
 		3. structure for projects - make grid
-		4.
+		4. make buttons link to position on main page, not just other links (e.g. project link in menu)
 
 	PROJECTS TO ADD:
 		1. CNC
@@ -42,10 +42,10 @@
 									<a href="#menu" class="menuToggle"><span>Menu</span></a>
 									<div id="menu">
 										<ul>
-											<li><a href="index.html">Home</a></li>
-											<li><a href="generic.html">About</a></li>
-											<li><a href="elements.html">Projects</a></li>
-											<li><a href="#">Contact</a></li>
+											<li><a href="#">Home</a></li>
+											<li><a href="#projects" class="more scrolly">Projects</a></li>
+											<li><a href="#about" class="more scrolly">About</a></li>
+											<li><a href="#contact" class="more scrolly">Contact</a></li>
 											<!-- <li><a href="#">Log In</a></li> -->
 										</ul>
 									</div>
@@ -66,31 +66,12 @@
 								<li><a href="#" class="button special">Make this button do something!</a></li>
 							</ul>
 						</div>
-						<a href="#one" class="more scrolly">View Projects</a>
+						<a href="#projects" class="more scrolly">View Projects</a>
 					</section>
 
-				<!-- One -->
-					<section id="one" class="wrapper style1 special">
-						<div class="inner">
-							<header class="major">
-								<h2>Arcu aliquet vel lobortis ata nisl<br />
-								eget augue amet aliquet nisl cep donec</h2>
-								<p>Aliquam ut ex ut augue consectetur interdum. Donec amet imperdiet eleifend<br />
-								fringilla tincidunt. Nullam dui leo Aenean mi ligula, rhoncus ullamcorper.</p>
-							</header>
-							<ul class="icons major">
-								<li><span class="icon fa-diamond major style1"><span class="label">Lorem</span></span></li>
-								<!-- <li><span class="fa-linkedin-square"><span class="label">Lorem</span></span></li> -->
-								<!-- <i class="fa fa-linkedin fa-3" aria-hidden="true"></i> -->
-        				<!-- <span class="sr-only">Example of linkedin at 3x</span> -->
-								<li><span class="icon fa-heart-o major style2"><span class="label">Ipsum</span></span></li>
-								<li><span class="icon fa-code major style3"><span class="label">Dolor</span></span></li>
-							</ul>
-						</div>
-					</section>
 
-				<!-- Two -->
-					<section id="two" class="wrapper alt style2">
+				<!-- projects -->
+					<section id="projects" class="wrapper alt style2">
 						<section class="spotlight">
 							<div class="image"><img src="images/P1050948.JPG" alt="" /></div><div class="content">
 								<h2><a href="prisum.html"> Team PrISUm</a></h2>
@@ -113,15 +94,37 @@
 						</section>
 					</section>
 
+
+					<!-- about -->
+						<section id="about" class="wrapper style1 special">
+							<div class="inner">
+								<header class="major">
+									<h2>Arcu aliquet vel lobortis ata nisl<br />
+									eget augue amet aliquet nisl cep donec</h2>
+									<p>Aliquam ut ex ut augue consectetur interdum. Donec amet imperdiet eleifend<br />
+									fringilla tincidunt. Nullam dui leo Aenean mi ligula, rhoncus ullamcorper.</p>
+								</header>
+								<ul class="icons major">
+									<li><span class="icon fa-diamond major style1"><span class="label">Lorem</span></span></li>
+									<!-- <li><span class="fa-linkedin-square"><span class="label">Lorem</span></span></li> -->
+									<!-- <i class="fa fa-linkedin fa-3" aria-hidden="true"></i> -->
+									<!-- <span class="sr-only">Example of linkedin at 3x</span> -->
+									<li><span class="icon fa-heart-o major style2"><span class="label">Ipsum</span></span></li>
+									<li><span class="icon fa-code major style3"><span class="label">Dolor</span></span></li>
+								</ul>
+							</div>
+						</section>
+
+
 				<!-- Three -->
-					<section id="three" class="wrapper style3 special">
-						<div class="inner">
-							<header class="major">
-								<h2>Accumsan mus tortor nunc aliquet</h2>
+					<!-- <section id="three" class="wrapper style3 special"> -->
+						<!-- <div class="inner"> -->
+							<!-- <header class="major"> -->
+								<!-- <h2>Accumsan mus tortor nunc aliquet</h2>
 								<p>Aliquam ut ex ut augue consectetur interdum. Donec amet imperdiet eleifend<br />
 								fringilla tincidunt. Nullam dui leo Aenean mi ligula, rhoncus ullamcorper.</p>
-							</header>
-							<ul class="features">
+							</header> -->
+							<!-- <ul class="features">
 								<li class="icon fa-paper-plane-o">
 									<h3>Arcu accumsan</h3>
 									<p>Augue consectetur sed interdum imperdiet et ipsum. Mauris lorem tincidunt nullam amet leo Aenean ligula consequat consequat.</p>
@@ -148,10 +151,11 @@
 								</li>
 							</ul>
 						</div>
-					</section>
+					</section> -->
 
-				<!-- CTA -->
-					<section id="cta" class="wrapper style4">
+
+				<!-- contact -->
+					<section id="contact" class="wrapper style4">
 						<div class="inner">
 							<header>
 								<h2>Arcue ut vel commodo</h2>
@@ -163,6 +167,7 @@
 							</ul>
 						</div>
 					</section>
+
 
 				<!-- Footer -->
 					<footer id="footer">
