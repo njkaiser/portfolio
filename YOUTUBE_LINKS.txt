@@ -12,3 +12,16 @@ https://youtu.be/DGlg79GINVY
 
 https://youtu.be/mq_Gnvbi8iw
 <iframe width="1280" height="720" src="https://www.youtube.com/embed/mq_Gnvbi8iw" frameborder="0" allowfullscreen></iframe>
+
+https://youtu.be/9gTq6OiVmLs
+<iframe width="1280" height="720" src="https://www.youtube.com/embed/9gTq6OiVmLs" frameborder="0" allowfullscreen></iframe>
+
+https://youtu.be/bE0ecxXtuWg
+<iframe width="1280" height="720" src="https://www.youtube.com/embed/bE0ecxXtuWg" frameborder="0" allowfullscreen></iframe>
+
+
+GIF:
+
+https://gifs.com/gif/lYnQEV
+https://j.gifs.com/lYnQEV.gif
+<iframe src='//gifs.com/embed/lYnQEV' frameborder='0' scrolling='no' width='640px' height='360px' style='-webkit-backface-visibility: hidden;-webkit-transform: scale(1);'' ></iframe>
