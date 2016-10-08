@@ -1,0 +1,51 @@
+PrISUm:
+
+Team PrISUm is an Iowa State University club which designs, builds, and races solar-powered electric vehicles.
+
+My involvement started ___ pull paragraph from MSR/other grad school applications?
+
+
+Skills Involved:
+- CAD
+- System design
+- FEA
+- CFD
+- System modeling
+- ANSYS
+- IT stuff
+- Marketing and fundraising
+- Everything needed to run a small business
+- Team building and Leadership
+- Outreach
+- Milling, Turning, Machining & Assembly
+-
+
+
+for PrISUm / P10:
+*include spec sheet
+*history of the project?
+*link to wikipedia article?
+*picture of me working?
+*lots of glamor shots - link to separate page? upload to flickr or something?
+
+
+CNC: walk through reason for project / motivation, project timeline, important design decisions, manufacturing methods (w/ pics), timeline interruptions (moving), testing and results of testing, and current status, then LINK TO INDIVIDUAL PROJECTS:
+- youtube links, flickr page for album of photos
+
+
+
+
+OTHER PROJECTS:
+GOAL:
+
+
+
+HARDWARE:
+
+
+
+SOFTWARE:
+
+
+
+SOLUTION:
