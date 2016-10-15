@@ -24,13 +24,14 @@ Skills Involved:
 for PrISUm / P10:
 *include spec sheet
 *history of the project?
-*link to wikipedia article?
 *picture of me working?
 *lots of glamor shots - link to separate page? upload to flickr or something?
 
 
 CNC: walk through reason for project / motivation, project timeline, important design decisions, manufacturing methods (w/ pics), timeline interruptions (moving), testing and results of testing, and current status, then LINK TO INDIVIDUAL PROJECTS:
 - youtube links, flickr page for album of photos
+
+
 
 
 
