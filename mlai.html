@@ -45,7 +45,7 @@
 
 								<h3>Mini-Projects</h3>
 
-								<p>The following mini-projects were completed throughout the duration of <b><a href="https://www.mccormick.northwestern.edu/eecs/courses/descriptions/469.html" target="blank" > EECS 469: Machine Learning &amp; Artificial Intelligence for Robotics</a></b>. Each explores a different aspect of robot estimation and planning (Bayesian filtering, Machine Learning, Artificial Intelligence, etc), and focuses predominantly on how these subjects pertain to mobile robots. See below for an overview of some of the mini-projects!</p>
+								<p>The following mini-projects were completed throughout the duration of <b><a href="https://www.mccormick.northwestern.edu/eecs/courses/descriptions/469.html" target="blank" > EECS 469: Machine Learning &amp; Artificial Intelligence for Robotics</a></b>. Each explores a different aspect of robot estimation and planning (Bayesian filtering, Machine Learning, Artificial Intelligence, Localization, Motion Planning, etc), and focuses predominantly on how these subjects pertain to mobile robots. All code was written completely from scratch, to ensure a deep understanding of the material. See below for an overview of some of the mini-projects!</p>
 
 								<hr />
 
@@ -80,10 +80,14 @@
 								<div class="row">
 									<div class="6u 12u$(medium)">
 										<h3>Project: A*</h3>
-										<p>Coming soon.</p>
+										<p>The <b><a href="https://en.wikipedia.org/wiki/A*_search_algorithm" target="blank" > A* algorithm</a></b> is a popular search algorithm for robot motion planning. The project focused on developing an "online" variant, which could only observe adjacent cells, to allow the simulated robot to plan as it moved. We were challenged to formulate a an optimized distance formula and heuristic algorithm, which are two of the biggest design considerations with A*. The graphic shows the results of the algorithm circumnavigating an arbitrary obstacle setup with ease. </p>
+
+										<p>Once A* had planned the path, an IK (Inverse Kinematic) motion controller was implemented to drive the robot along its route. Many challenges had to be overcome, including tuning the controller to account for dynamic considerations (e.g. max velocity and acceleration constraints).</p>
+
+										<!-- <p>learned about: heuristic design and selection, made "online" version instead of normal version too, had ik controller then travel the path, including velocity/acceleration limits</p> -->
 									</div>
 									<div class="6u$ 12u$(medium)">
-										<div class="image"><img src="images/astar.jpeg" alt="" /></a></div><div class="content">
+										<div class="image"><img src="images/astar.png" alt="" /></a></div><div class="content">
 										</div>
 									</div>
 								</div>
@@ -91,7 +95,7 @@
 								<hr />
 
 								<h3>Learn More</h3>
-								<p>The course is taught by Professor <b><a href="http://www.mccormick.northwestern.edu/research-faculty/directory/profiles/argall-brenna.html" target="blank" > Brenna Argall</a></b>, director of the Assistive &amp; Rehabilitation Robotics Laboratory (argallab) at the Rehabilitation Institue of Chicago. Her research explores the union of human/robot interfacing, Machine Learning, and adaptable levels of autonomy. Check out the novel work being done by Professor Argall and her team at <b><a href="http://argallab.smpp.northwestern.edu/" target="blank" > http://argallab.smpp.northwestern.edu/</a></b>.</p>
+								<p>The course is taught by Professor <b><a href="http://www.mccormick.northwestern.edu/research-faculty/directory/profiles/argall-brenna.html" target="blank" > Brenna Argall</a></b>, director of the Assistive &amp; Rehabilitation Robotics Laboratory (argallab) at the Rehabilitation Institue of Chicago. Her research explores the union of human/robot interfacing, Machine Learning, and adaptable levels of autonomy. Check out the novel work being done by Dr. Argall and her team at <b><a href="http://argallab.smpp.northwestern.edu/" target="blank" > http://argallab.smpp.northwestern.edu/</a></b>.</p>
 
 								<p></p>
 							</div>
