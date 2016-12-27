@@ -43,7 +43,7 @@
 						<section class="wrapper style5">
 							<div class="inner">
 
-								<h3>Mini-Projects</h3>
+								<h3>Mini-Projects Overview</h3>
 
 								<p>The following mini-projects were completed throughout the duration of <b><a href="https://www.mccormick.northwestern.edu/eecs/courses/descriptions/469.html" target="blank" > EECS 469: Machine Learning &amp; Artificial Intelligence for Robotics</a></b>. Each explores a different aspect of robot estimation and planning (Bayesian filtering, Machine Learning, Artificial Intelligence, Localization, Motion Planning, etc), and focuses predominantly on how these subjects pertain to mobile robots. All code was written completely from scratch, to ensure a deep understanding of the material. See below for an overview of some of the mini-projects!</p>
 
@@ -70,8 +70,11 @@
 										</div>
 									</div>
 									<div class="6u$ 12u$(medium)">
-										<h3>Project: RRT</h3>
-										<p>Coming soon.</p>
+										<h3>RRT Search Algorithm</h3>
+										<p>A <b><a href="https://en.wikipedia.org/wiki/Rapidly-exploring_random_tree" target="blank" > Rapidly-exploring Random Tree</a></b> (RRT) is a simple and computationally-efficient search algorithm. Developed at Iowa State (my undergraduate <i>Alma mater</i>), this algorithm commonly augments a more hefty primary search method (e.g. A*).</p>
+
+										<p>The adjacent graphic illustrates my RRT navigating Northwestern's 'N' logo. The initial and goal positions are shrouded by the N, which can be computationally expensive for some algorithms to handle. An RRT can generate a rough path quickly and later smooth it for traversal, or use it to guide a slower, but highly-optimized primary algorithm.</p>
+
 									</div>
 								</div>
 
@@ -79,16 +82,32 @@
 
 								<div class="row">
 									<div class="6u 12u$(medium)">
-										<h3>Project: A*</h3>
-										<p>The <b><a href="https://en.wikipedia.org/wiki/A*_search_algorithm" target="blank" > A* algorithm</a></b> is a popular search algorithm for robot motion planning. The project focused on developing an "online" variant, which could only observe adjacent cells, to allow the simulated robot to plan as it moved. We were challenged to formulate a an optimized distance formula and heuristic algorithm, which are two of the biggest design considerations with A*. The graphic shows the results of the algorithm circumnavigating an arbitrary obstacle setup with ease. </p>
+										<h3>A* Search Algorithm</h3>
+										<p>The <b><a href="https://en.wikipedia.org/wiki/A*_search_algorithm" target="blank" > A* algorithm</a></b> is a popular AI search algorithm for robot motion planning. The project focused on developing an "online" variant, which could only observe adjacent cells, to allow the simulated robot to plan as it moved. The challeng was to formulate an optimized distance formula and heuristic algorithm, two of the biggest design considerations with A*, to navigate a 2D field. The graphic shows the results of the algorithm circumnavigating an arbitrary obstacle setup with ease. </p>
 
-										<p>Once A* had planned the path, an IK (Inverse Kinematic) motion controller was implemented to drive the robot along its route. Many challenges had to be overcome, including tuning the controller to account for dynamic considerations (e.g. max velocity and acceleration constraints).</p>
+										<p>Once A* had planned the path, an IK (Inverse Kinematic) motion controller was implemented to drive the robot along this route. Many challenges had to be overcome, including tuning the controller to account for dynamic considerations (e.g. max velocity and acceleration constraints).</p>
 
-										<!-- <p>learned about: heuristic design and selection, made "online" version instead of normal version too, had ik controller then travel the path, including velocity/acceleration limits</p> -->
 									</div>
 									<div class="6u$ 12u$(medium)">
 										<div class="image"><img src="images/astar.png" alt="" /></a></div><div class="content">
 										</div>
+									</div>
+								</div>
+
+								<hr />
+
+								<div class="row">
+									<div class="6u 12u$(medium)">
+										<!-- <p><span class="image left"><img src="images/RRT1.png" width="488" height="487" alt="Example RRT output" /></span></p> -->
+										<div class="image"><img src="images/nn_lwlr.jpg" alt="" /></a></div><div class="content">
+										</div>
+									</div>
+									<div class="6u$ 12u$(medium)">
+										<h3>Neural Networks &amp; LWLR</h3>
+										<p>For this project, two Machine Learning algorithms were implemented and explored. <b><a href="https://en.wikipedia.org/wiki/Artificial_neural_network" target="blank" > Neural Networks</a></b> and <b><a href="https://en.wikipedia.org/wiki/Local_regression" target="blank" > Locally Weighted Linear Regression</a></b> (LWLR) were both tested on a data set from a prior project. The goal of this project was to learn and eliminate any hidden systematic error in the dead-reckoned path.</p>
+
+										<p>MORE HERE.</p>
+
 									</div>
 								</div>
 
