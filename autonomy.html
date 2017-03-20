@@ -48,7 +48,7 @@
 									<div class="6u 12u$(medium)">
 										<h3>About the Project</h3>
 
-										<p>I've always been interested in autonomous navigation, planning, and control, so I seized the opportunity when our lab received its new UGV (unmanned ground vehicle) from Clearpath Robotics. This also proved a great opportunity to experiment with pointcloud processing, something that has fascinated me since the beginning of their use in autonomous vehicles.</p>
+										<p>I've always been interested in autonomous navigation, planning, and control, so I seized the opportunity when our lab received its new UGV (unmanned ground vehicle) from <b><a href="http://www.clearpathrobotics.com/" target="blank" > Clearpath Robotics</a></b>. This also proved a great opportunity to experiment with pointcloud processing, something that has fascinated me since the beginning of its use in autonomous vehicles.</p>
 
 										<h4>Hardware used:</h4>
 										<ul>
@@ -62,23 +62,6 @@
 											<span class="image fit"><img src="images/autonomy1.jpg" alt="Clearpath Robotic's Jackal UGV" /></span>
 									</div>
 
-									<!-- <div class="6u 12u$(medium)">
-											<span class="image fit"><img src="images/jackal5.gif" alt="Pointcloud around Jackal" /></span>
-									</div> -->
-
-									<!-- <div class="6u$ 12u$(medium)"> -->
-										<!-- <h3>About the Project</h3>
-
-										<p>This was my first endeavor into the exciting world of autonomy. I've always been interested in autonomous navigation, planning, and control, so I seized the opportunity when our lab got a new UGV (unmanned ground vehicle) from Clearpath Robotics.</p>
-
-										<h4>Hardware:</h4>
-										<ul>
-											<li>Clearpath Jackal UGV</li>
-											<li>Velodyne VLP-16 LIDAR</li>
-											<li>PointGrey Flea3 Machine Vision Camera</li>
-										</ul> -->
-									<!-- </div> -->
-
 								</div>
 
 								<hr />
@@ -88,20 +71,20 @@
 									<h3>Procedure</h3>
 
 									<h4>First Steps</h4>
-									<p>The initial system setup for any project is often rushed or overlooked altogether. Since this was a brand new robot, a bit of up-front development was necessary to help ensure the project ran smoothly. A special wireless router was purchased solely for uninterrupted communication with Jackal, environment variables needed set on both the host and robot's computer, and painful networking issues were debugged.</p>
-									<p>The laser also needed to be mounted. A simple bracket was manufactured at Northwestern's <b><a href="https://www.youtube.com/watch?v=bKEOFf14lis" target="blank" > Segal Prototyping and Fabrication Lab</a></b>. Care was taken to design the bracket height such that the LIDAR unit was as low as possible (to better see objects low to the ground) while not occluding any of its visible range with the corners of the robot.</p>
-									<p>Most importantly, a simulated environment emulating the real robot was set up for initial first-pass testing. Gazebo is the ROS simulation tool of choice, and, in conjunction with RViz, was used to verify properly-functioning sensor feedback and control of the robot. A virtual development environment is one of the most valuable up-front investments, as it facilitates rapid, rigorous, and safe validation of the algorithms implemented.</p>
+									<p>The initial system setup for any project is often rushed or overlooked altogether. Since this was a brand new robot, a bit of up-front development was necessary to help ensure the project ran smoothly. A special wireless router was purchased for fast and uninterrupted communication, environment variables needed set on both the host and robot computer, and networking issues were debugged.</p>
+									<p>The laser also needed to be mounted. A simple bracket was manufactured at Northwestern's <b><a href="https://www.youtube.com/watch?v=bKEOFf14lis" target="blank" > Segal Prototyping and Fabrication Lab</a></b>. Care was taken to design the bracket such that the LIDAR unit was as low as possible (to better see objects low to the ground) while not occluding any of its visible range with the corners of the robot.</p>
+									<p>Most importantly, a simulated environment emulating the real robot was created for initial first-pass testing. Gazebo is the ROS simulation tool of choice, and, in conjunction with RViz, was used to verify properly-functioning sensor feedback and control of the robot. A virtual development environment is one of the most valuable up-front investments, as it facilitates rapid, rigorous, and safe validation of the algorithms implemented.</p>
 
 									<h4>SLAM &amp; Autonomous Navigation</h4>
-									<p><span class="image right"><img src="images/autonomy2.png" alt="Jackal &amp; pointcloud from Velodyne" /></span>Once preliminary operations were working correctly, it was time to attempt a collision avoidance test run! But, as is typical with a robot's first steps, it didn't work very well. After digging into the issue, I discovered the root was a faulty costmap. Viewing the costmap revealed nearly 90% of the grid cells were believed to be lethal cost (essentially the entire floor was being treated as an obstacle). Diving a bit further, I found the laser scans were hitting the ground (as they should), but the primitive floor filter I had applied to the pointcloud did not account for tilting of the robot over uneven ground. Modifying the filter threshold to fix this would prevent Jackal from seeing real obstacles, so a more robust solution had to be created.</p>
-									<p>After thinking it through and adjusting to the PCL syntax in C++, a custom pointcloud filter was implemented. It worked nearly flawlessly, instantly reducing erronous costmap fill-up. The filter works by eliminating a few distinct subsets of the full pointcloud as follows:</p>
+									<p><span class="image right"><img src="images/autonomy2.png" alt="Jackal &amp; pointcloud from Velodyne" /></span>Once preliminary operations were working correctly, it was time to attempt a collision avoidance test run! But, as is typical with a robot's first steps, it didn't work very well. After digging into the issue, I discovered the root was a faulty costmap. Viewing the costmap revealed nearly 90% of the grid cells were believed to be lethal cost (essentially the entire floor was being treated as an obstacle). Diving a bit further, I found the laser scans were hitting the ground (as they should), but the primitive floor filter I had applied to the pointcloud did not account for tilting of the robot on uneven ground. Modifying the filter threshold to fix this would prevent Jackal from seeing real obstacles, so a more robust solution had to be created.</p>
+									<p>After coming up with the algorithm and adjusting to the PCL syntax in C++, the custom pointcloud filter was implemented. It worked nearly flawlessly, immediately eliminating erronous costmap fill-up. The filter works by removing a few distinct subsets of the raw pointcloud as follows:</p>
 									<ol>
 										<li>Eliminate any points within a cylinder of radius of 0.2 m, centered on the robot (oriented vertically)</li>
-										<li>Crop any points beyond 5 meters in the x- and y-direction</li>
+										<li>Crop any points beyond 4 meters in the x and y directions</li>
 										<li>Ignore points taller than the robot (0.4 m) or within 1 cm of the ground</li>
 										<li>Remove all points below a conic surface angled 1.5&deg; from the ground, centered on the robot and starting at ground height</li>
 									</ol>
-									<p>The final bullet provides the majority of the work. Unlike in simulation, the real Jackal has manufacturing and assembly tolerances affecting the pose of the laser, and drives on ground that is not completely flat. The 1.5&deg; conic filter eliminates any false detections from the floor due to tilt.</p>
+									<p>The final bullet provides the majority of the benefit. Unlike in simulation, the real robot has manufacturing and assembly tolerances affecting the pose of the laser, and drives on ground that is not completely flat. The 1.5&deg; conical filter eliminates any false detections from the floor due to tilt.</p>
 									<p><span class="image right"><img src="images/autonomy3.png" alt="navigating an obstacle" /></span>After this, pure odometric collision avoidance was working reliably, and it was time to start building maps! <b><a href="https://en.wikipedia.org/wiki/Simultaneous_localization_and_mapping" target="blank" > SLAM</a></b> has made huge strives in functionality and efficiency over the past few decades and is easily implemented using widely-available ROS packages. For this project, the popular <b><a href="http://wiki.ros.org/gmapping" target="blank" > gmapping</a></b> package was used to construct global costmaps, and <b><a href="http://wiki.ros.org/amcl" target="blank" > AMCL</a></b> used to localize within these maps once built.</p>
 									<p>The accompanying picture shows Jackal autonomously navigating around the Robotics Lab and visually summarizes many important aspects of the project:</p>
 									<ol>
@@ -110,12 +93,12 @@
 										<li>Light-gray arrows (mostly clustered beneath the robot) are individual particles of the <b><a href="https://en.wikipedia.org/wiki/Particle_filter" target="blank" > particle filter</a></b></li>
 										<li>The <i>thick</i> pink line is the path to the goal generated by the global planner</li>
 										<li>The <i>thin</i> pink line represents the local path (what the robot's controller actually commands)</li>
-										<li>Scattered red points are individual returns detected by the laser scanner.</li>
+										<li>Scattered red points are individual returns from the LIDAR.</li>
 									</ol>
 
 									<h4>Custom Controller &amp; Beyond</h4>
 									<p><span class="image right"><img src="images/autonomy4.png" alt="clipping corners" /></span>Navigation worked surprisingly well for a single-quarter project, but there were many aspects that could have been improved. A known issue with the current software is the tendency for the controller to cut corners constructed by the global planner. While most of the time this doesn't cause problems, occasionally it leads the robot to clip the very obstacle being circumnavigated. The adjacent picture shows an exaggerated example - the controller is about to drive Jackal into a wall during a simulation run.</p>
-									<p>The shortcomings of the <b><a href="http://wiki.ros.org/dwa_local_planner" target="blank" > default controller</a></b> have been known for some time, and other options are readily available as plugins. However, I thought it would be worthwhile (and fun!) to implement a purpose-built controller, one much more ideal for this specific robot and configuration. While this idea came too late to fully incorporate into the official project, it will continue to be worked on throughout intermissions and subsequent quarters at Northwestern.</p>
+									<p>The shortcomings of the <b><a href="http://wiki.ros.org/dwa_local_planner" target="blank" > default controller</a></b> have been known for some time, and other options are readily available as plugins. However, I thought it would be worthwhile (and fun!) to implement a purpose-built controller, one much more ideal for this specific robot and configuration. While this idea came too late to fully incorporate into the final results of the project, it will continue to be worked on throughout intermissions and subsequent quarters at Northwestern.</p>
 
 								</div>
 
@@ -123,8 +106,8 @@
 
 								<h3 align="left">Skills Involved</h3>
 								<ul>
-									<li align="left">ROS Navigation Stack &amp; ROS plugins</li>
-									<li align="left">C++ &amp; Python for real-time, embedded control</li>
+									<li align="left">ROS Navigation Stack, ROS plugins</li>
+									<li align="left">C++ &amp; Python for real-time embedded control</li>
 									<li align="left">Motion planning &amp; control algorithms</li>
 									<!-- <li align="left">Control algorithms</li> -->
 									<li align="left">Laser/LIDAR data handling</li>
