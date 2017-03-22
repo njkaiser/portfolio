@@ -1,0 +1,141 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Nate Kaiser::Portfolio Website</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<link rel="icon" href="images/favicon.ico">
+	</head>
+	<body>
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="index.html">Nate Kaiser</a></h1>
+						<nav id="nav">
+							<ul>
+								<li class="special">
+									<a href="#menu" class="menuToggle"><span>Menu</span></a>
+									<div id="menu">
+										<ul>
+											<li><a href="index.html">Home</a></li>
+											<li><a href="index.html#projects">Projects</a></li>
+											<li><a href="index.html#about">About</a></li>
+											<li><a href="index.html#contact">Contact</a></li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</nav>
+					</header>
+
+				<!-- Main -->
+					<article id="main">
+						<header>
+							<h2>Computer Vision</h2>
+							<h4>Motion Approximation From Optical Flow</h4>
+						</header>
+						<section class="wrapper style5">
+							<div class="inner">
+
+								<div class="row">
+
+									<div class="6u 12u$(medium)">
+										<h3>About the Project</h3>
+										<p>The use of computer vision has skyrocketed over the past few decades, especially for motion analysis. For this project, I demonstrated the use of vision processing techniques to estimate the state of a mobile robot. Achieving robust, real-time performance is computationally intensive, so the algorithms explored were selected primarily for their efficiency. The <b><a href="http://docs.opencv.org/3.0-beta/doc/py_tutorials/py_feature2d/py_shi_tomasi/py_shi_tomasi.html" target="blank" > Shi-Tomasi improved corner detection algorithm</a></b> was coupled with the <b><a href="https://en.wikipedia.org/wiki/Lucas%E2%80%93Kanade_method" target="blank" > Lucas-Kanade optical flow algorithm</a></b>, and the output was then combined with data from an <b><a href="https://en.wikipedia.org/wiki/Inertial_measurement_unit" target="blank" > Inertial Measurement Unit</a></b> (IMU) via an <b><a href="https://en.wikipedia.org/wiki/Extended_Kalman_filter" target="blank" > Extended Kalman Filter</a></b> (EKF) to estimate robot motion.</p>
+									</div>
+
+									<div class="6u$ 12u$(medium)">
+										<span class="image fit"><img src="images/compviz1.gif" alt="Computer vision tracking points" /></span>
+									</div>
+
+								</div>
+
+								<hr />
+
+								<!-- <div class="inner"> -->
+									<h3 align="left">Skills Involved</h3>
+									<ul>
+										<li align="left">OpenCV</li>
+										<li align="left">Vision Processing in C++</li>
+										<li align="left">Optical flow</li>
+										<li align="left">Motion tracking</li>
+										<li align="left">Camera calibration</li>
+										<li align="left">Visual odometry methods</li>
+										<li align="left">Camera stabilization techniques</li>
+										<li align="left">Structure from motion</li>
+										<li align="left">3D reconstruction from stereo</li>
+										<!-- <li align="left">C++</li> -->
+									</ul>
+								<!-- </div> -->
+
+								<hr />
+
+								<h3 align="left">Procedure</h3>
+
+								<!-- <div class="inner"> -->
+									<p>Two different computer vision methods were tried and their results compared. Both methods first estimate the camera motion from optical flow data and use the rigid transform between camera and robot chassis to then estimate robot motion. In method 1, the <b><a href="https://en.wikipedia.org/wiki/Essential_matrix#Use" target="blank"> Essential Matrix</a></b> was decomposed to a transformation matrix (which consists of a rotation and translation). For method 2, a simpler <b><a href="https://en.wikipedia.org/wiki/3D_projection" target="blank"> projective transform</a></b> was used, since the transform between camera and ground frames was known. A projective transform is computationally cheap, requiring only a single matrix multiplication operation for each tracked point.</p>
+									<p>The first technique, unfortunately, did not work very well. The Essential Matrix calculation often returned invalid results, and the decomposition process produces 4 unique solutions, so even valid results had to be sifted through to find the correct one. There are many reasons for the invalid returns, including:</p>
+									<ul>
+										<li align="left">Too little camera motion from frame-to-frame</li>
+										<li align="left">Noisy image data (especially when moving)</li>
+										<li align="left">Singlular planar surfaces (such as floors) are a degenerate case</li>
+										<li align="left">Scale ambiguity of the method</li>
+									</ul>
+								<!-- </div> -->
+
+								<div class="row">
+									<div class="6u 12u$(medium)">
+										<p>Needless to say, this method was not ideal. Furthmore, it's much more computationally expensive than the 2nd method. Meanwhile, the projective transform worked surprisingly well. It had somewhat large error at high speeds, but that could be overlooked for the purposes of this project.</p>
+										<p>After collecting test data and comparing the 2 methods, it was clear that the projective transform was the best method both from an efficiency and accuracy standpoint. The resulting <b><a href="https://en.wikipedia.org/wiki/Visual_odometry" target="blank"> visual odometry</a></b> was also far more accurate than inertial navigation alone (i.e. using only the IMU to estimate state).</p>
+										<p>The results of both are shown in the adjacent plots, as well as data for wheel encoder odometry. In the <i>Stationary test</i>, both visual and encoder odometry accumulate almost zero positional change over 35 seconds (as expected). Inertial navigation, however, drifts almost 75 cm and back in that same time frame. A similar result is obtained for the <i>Normal Driving</i> test - the visual and encoder odometry graphs give relatively consistent predictions, while the IMU graph dwarfs them both in scale (note there are 2 separate axes - one for encoder &amp; visual, the other for inertial - which vary by a factor of nearly 50).</p>
+									</div>
+
+									<div class="6u$ 12u$(medium)">
+										<span class="image fit"><img src="images/compviz2.png" alt="Results of Stationary tests" /></span>
+										<span class="image fit"><img src="images/compviz3.png" alt="Results of Normal_Driving tests" /></span>
+									</div>
+								</div>
+
+
+								<hr />
+
+								<h3>Learn More</h3>
+
+								<p>This was my final project for <b><a href="https://www.mccormick.northwestern.edu/eecs/courses/descriptions/432.html" target="blank" > EECS 423: Advanced Computer Vision</a></b> at Northwestern. Download the software package from <b><a href="https://github.com/apollack11/advanced-computer-vision" target="blank" > GitHub</a></b> to try it for yourself. The <b><a href="https://github.com/apollack11/advanced-computer-vision/blob/master/README.md" target="blank" > README</a></b> should contain all necessary information to get it running.</p>
+
+							</div>
+						</section>
+					</article>
+
+
+				<!-- Footer -->
+					<footer id="footer">
+						<ul class="icons">
+							<li><a href="https://github.com/njkaiser/" target="blank" class="icon fa-github fa-lg"><span class="label">Github</span></a></li>
+							<li><a href="https://www.linkedin.com/in/nate-kaiser-95536426" target="blank" class="icon fa-linkedin fa-lg"><span class="label">Email</span></a></li>
+							<li><a href="mailto:nathanielkaiser2017@u.northwestern.edu" class="icon fa-envelope-o fa-lg"><span class="label">Email</span></a></li>
+						</ul>
+						<ul class="copyright">
+							<li>Template: <a href="https://html5up.net/spectral"> SPECTRAL</a></li><li>From: <a href="http://html5up.net">HTML5 UP</a></li>						</ul>
+					</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
