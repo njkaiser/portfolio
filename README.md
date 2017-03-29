@@ -1,3 +1,3 @@
-### Looking for my portfolio website? Try [here][1].
+### Looking for my portfolio website? Try:
 
-[1]: [https://njkaiser.github.io/portfolio/]
+### https://njkaiser.github.io/portfolio/
