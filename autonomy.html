@@ -94,7 +94,7 @@
 
 									<h4>SLAM &amp; Autonomous Navigation</h4>
 									<p><span class="image right"><img src="images/autonomy2.jpg" alt="Jackal &amp; pointcloud from Velodyne" /></span>Once preliminary operations were working correctly, it was time to attempt a collision avoidance test run! But, as is typical with a robot's first steps, it didn't work very well. After digging into the issue, I discovered the root was a faulty costmap. Viewing the costmap revealed nearly 90% of the grid cells were believed to be lethal cost (essentially the entire floor was being treated as an obstacle). Diving a bit further, I found the laser scans were hitting the ground (as they should), but the primitive floor filter I had applied to the pointcloud did not account for tilting of the robot on uneven ground. Modifying the filter threshold to fix this would prevent Jackal from seeing real obstacles, so a more robust solution had to be created.</p>
-									<p>After coming up with the algorithm and adjusting to the PCL syntax in C++, the custom pointcloud filter was implemented. It worked nearly flawlessly, immediately eliminating erronous costmap fill-up. The filter works by removing a few distinct subsets of the raw pointcloud as follows:</p>
+									<p>After coming up with the algorithm and adjusting to the PCL syntax in C++, the custom pointcloud filter was implemented. It worked nearly flawlessly, immediately eliminating erroneous costmap fill-up. The filter works by removing a few distinct subsets of the raw pointcloud as follows:</p>
 									<ol>
 										<li>Eliminate any points within a cylinder of radius of 0.2 m, centered on the robot (oriented vertically)</li>
 										<li>Crop any points beyond 4 meters in the x and y directions</li>

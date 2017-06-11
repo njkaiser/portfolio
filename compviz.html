@@ -85,14 +85,14 @@
 									<ul>
 										<li align="left">Too little camera motion from frame-to-frame</li>
 										<li align="left">Noisy image data (especially when moving)</li>
-										<li align="left">Singlular planar surfaces (such as floors) are a degenerate case</li>
+										<li align="left">Singular planar surfaces (such as floors) are a degenerate case</li>
 										<li align="left">Scale ambiguity of the method</li>
 									</ul>
 								<!-- </div> -->
 
 								<div class="row">
 									<div class="6u 12u$(medium)">
-										<p>Needless to say, this method was not ideal. Furthmore, it's much more computationally expensive than the 2nd method. Meanwhile, the projective transform worked surprisingly well. It had somewhat large error at high speeds, but that could be overlooked for the purposes of this project.</p>
+										<p>Needless to say, this method was not ideal. Furthermore, it's much more computationally expensive than the 2nd method. Meanwhile, the projective transform worked surprisingly well. It had somewhat large error at high speeds, but that could be overlooked for the purposes of this project.</p>
 										<p>After collecting test data and comparing the 2 methods, it was clear that the projective transform was the best method both from an efficiency and accuracy standpoint. The resulting <b><a href="https://en.wikipedia.org/wiki/Visual_odometry" target="blank"> visual odometry</a></b> was also far more accurate than inertial navigation alone (i.e. using only the IMU to estimate state).</p>
 										<p>The results of both are shown in the adjacent plots, as well as data for wheel encoder odometry. In the <i>Stationary test</i>, both visual and encoder odometry accumulate almost zero positional change over 35 seconds (as expected). Inertial navigation, however, drifts almost 75 cm and back in that same time frame. A similar result is obtained for the <i>Normal Driving</i> test - the visual and encoder odometry graphs give relatively consistent predictions, while the IMU graph dwarfs them both in scale (note there are 2 separate axes - one for encoder &amp; visual, the other for inertial - which vary by a factor of nearly 50).</p>
 									</div>
