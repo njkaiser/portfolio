@@ -1,0 +1,226 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Nate Kaiser::Portfolio Website</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<link rel="icon" href="images/favicon.ico">
+	</head>
+	<body>
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="index.html">Nate Kaiser</a></h1>
+						<nav id="nav">
+							<ul>
+								<li class="special">
+									<a href="#menu" class="menuToggle"><span>Menu</span></a>
+									<div id="menu">
+										<ul>
+											<li><a href="index.html">Home</a></li>
+											<li><a href="index.html#projects">Projects</a></li>
+											<li><a href="index.html#about">About</a></li>
+											<li><a href="index.html#contact">Contact</a></li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</nav>
+					</header>
+
+				<!-- Main -->
+					<article id="main">
+						<header>
+							<h2>Smart Cancer Detection</h2>
+							<h4>Using a Convolutional Neural Network to Search 3D Medical Images</h4>
+						</header>
+						<section class="wrapper style5">
+							<div class="inner">
+
+								<div class="row">
+
+									<div class="6u 12u$(medium)">
+										<h3>About the Project</h3>
+										<p>The objective of this project was to predict the presence of lung cancer given a 40×40 pixel image snippet extracted from the <b><a href="https://luna16.grand-challenge.org/" target="blank">LUNA2016 medical image database</a></b>. This problem is unique and exciting since it will have a direct impact on the future of health care, computer vision in medicine, and how machine learning will affect personal decisions. The medical field is a likely place for machine learning to thrive, as regulations continue to allow increased sharing of anonymous data for the sake of better care. It's even more exciting since machine learning in medicine is still new enough that our project is able to implement methods at the forefront of technology!</p>
+									</div>
+
+									<div class="6u$ 12u$(medium)">
+										<span class="image fit"><img src="images/cancer.gif" alt="3D MRI scan of lungs" /></span>
+									</div>
+
+								</div>
+
+								<hr />
+
+								<h3 align="left">Skills Involved</h3>
+								<ul>
+									<li align="left"><b><a href="https://www.tensorflow.org/" target="blank" >TensorFlow</a></b></li>
+									<li align="left">TensorBoard</li>
+									<li align="left"><b><a href="https://en.wikipedia.org/wiki/Convolutional_neural_network" target="blank" >Convolutional Neural Networks</a></b></li>
+									<li align="left">Hyperparameter tuning</li>
+									<li align="left">Medical image processing</li>
+									<li align="left">Python</li>
+								</ul>
+
+								<hr />
+
+								<h3 align="left">Procedure</h3>
+
+								<p>Due to the complex nature of our task, most machine learning algorithms are not well-posed for this project. There are currently two prominent approaches for machine learning for image data: either extract features using conventional computer vision techniques and learn the feature sets, or apply convolution directly using a CNN. In the past few years, however, CNNs have far outpaced traditional computer vision methods for difficult, enigmatic tasks such as cancer detection. We decided to implement a CNN in TensorFlow, Google’s machine learning framework.</p>
+
+								<div style="text-align: center;">
+									<span class="image fit"><img src="images/cancer1.png" alt="Positive examples" /></span>
+									<p><i>Figure 1: Examples of cancerous images</i></p>
+								</div>
+
+								<div style="text-align: center;">
+									<span class="image fit"><img src="images/cancer2.png" alt="Negative examples" /></span>
+									<p><i>Figure 2: Examples of non-cancerous images</i></p>
+								</div>
+
+								<p>Because my partners and I had limited experience with convolutional neural networks, we elected to first explore our hyperparameter space using a large-scale experiment. We ran tests across 5 of the dimensions for a total of 108 unique models. For this study, we kept a constant network architecture, although it was varied for other runs.</p>
+
+								<div style="text-align: center;">
+									<span class="image fit"><img src="images/cancer7.png" alt="Accuracy for all 108 runs" /></span>
+									<p><i>Figure 3: Accuracy results for the 108 runs of the experiment</i></p>
+								</div>
+
+								<div style="text-align: center;">
+									<span class="image fit"><img src="images/cancer8.png" alt="Softmax loss for all 108 runs" /></span>
+									<p><i>Figure 4: Loss results for the 108 runs of the experiment</i></p>
+								</div>
+
+								<p>Each model was trained on 2,064 images using a batch size of 104. A validation test was run every 10 epochs on a separate 442 images, and a final test was run after 500 epochs on a remaining 442 images.</p>
+
+								<h4 align="left">Table 1: Hyperparameter Permutations</h4>
+								<div class="table-wrapper">
+									<table>
+										<thead>
+											<tr>
+												<th><b>Attribute</b></th>
+												<th><b>Values Tested</b></th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td>Convolutional Layer 1: Kernel Size</td>
+												<td>3x3, 5x5, 7x7</td>
+											</tr>
+											<tr>
+												<td>Convolutional Layer 1: Number of Filters</td>
+												<td>16, 32</td>
+											</tr>
+											<tr>
+											<tr>
+												<td>Convolutional Layer 2: Kernel Size</td>
+												<td>3x3, 5x5, 7x7</td>
+											</tr>
+												<td>Convolutional Layer 2: Number of Filters</td>
+												<td>32, 64</td>
+											</tr>
+											<tr>
+												<td>Dropout Rate</td>
+												<td>10%, 20%, 30%</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+
+								<hr />
+
+								<h3 align="left">Results</h3>
+
+								<p>After determining the best set of hyperparameters based on average peak validation accuracy, we then tested six new architectures based on these hyperparameters. The structure of each of these architectures was decided based on the principles described in the <b><a href="http://cs231n.github.io/convolutional-networks/" target="blank">Stanford CS231n course notes</a></b>. After running the final six architectures at 500 epochs, we found the inflection point of the loss to be around 250 epochs. We then ran each of the six architectures for 250 epochs and recorded the final test accuracy. The best network architecture of these six achieved a test accuracy of 96.38%.</p>
+
+								<div style="text-align: center;">
+									<span class="image fit"><img src="images/cancer3.png" alt="TensorBoard Accuracy" /></span>
+									<p><i>Figure 5: TensorBoard Graph of accuracy for final model after 500 epochs (orange = training, blue = validation)</i></p>
+								</div>
+
+								<div style="text-align: center;">
+									<span class="image fit"><img src="images/cancer4.png" alt="TensorBoard Loss" /></span>
+									<p><i>Figure 6: TensorBoard Graph of (softmax) loss for final model after 500 epochs (orange = training, blue = validation)</i></p>
+								</div>
+
+								<hr />
+
+								<h3 align="left">Conclusions</h3>
+
+								<p>After choosing the model with the highest accuracy and best robustness, we dove into the results to learn why some images were misclassified (CNNs are capable of nearly 100% classification, even for extremely complex tasks). The first step was to construct a confusion matrix (see table below) to determine if there was a clear trend in misclassification.</p>
+
+								<h4 align="left">Table 2: Confusion Matrix</h4>
+								<div class="table-wrapper">
+									<table>
+										<thead>
+											<tr>
+												<th></th>
+												<th>Predicted Positive</th>
+												<th>Predicted Negative</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr style="text-align: left">
+												<td><b>Actual Positive</b></td>
+												<td>226</td>
+												<td>12</td>
+											</tr>
+											<tr style="text-align: left">
+												<td><b>Actual Negative</b></td>
+												<td>4</td>
+												<td>200</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+
+								<div style="text-align: center;">
+									<span class="image fit"><img src="images/cancer6.png" alt="Misclassified Images" /></span>
+								  <p><i>Figure 7: Examples of misclassified images from the test dataset</i></p>
+								</div>
+
+								<p>While the model did produce more false negatives than positives, we believe the problem isn't intrinsic to the model. If you look at the misclassified images above, it's easy to see that some are completely non-descript. Even trained radiologists would have trouble classifying these images without more information. It's possible there were some mis-labeled images in the dataset, or perhaps the tumor was too large to fit in the 40×40 window we chose. Furthermore, we discovered that all of the top 5 models consistently and unanimously misclassified the same images. We believed it would be against the spirit of the exercise to remove these images from the dataset, but are certain we could acheive near 100% accuracy if these problematic images were eliminated.</p>
+
+								<p>In the future, we hope to test our model on full 3D lung scans. A tool like this could search through millions of lung scans per day and assist radiologists by pinpointing potential nodules, marking suspicious areas, and clearing patients with no signs of cancerous. It could also run checks on patients with no symptoms, without patients needing to pay for multiple hours of these specialists' time!</p>
+
+								<hr />
+
+								<h3>Learn More</h3>
+
+								<p>This project fulfilled my final requirement for <b><a href="http://www.mccormick.northwestern.edu/eecs/courses/descriptions/349.html" target="blank" > EECS 349: Machine Learning</a></b>, but went well beyond class requirements, diving deep into my and my partners' interests in machine learning for computer vision. If you're interested in learning more, take a look at our final report. The report and all of our source code can be downloaded from <b><a href="https://github.com/njkaiser/EECS349_Project" target="blank" > GitHub</a></b>.</p>
+
+							</div>
+						</section>
+					</article>
+
+
+				<!-- Footer -->
+					<footer id="footer">
+						<ul class="icons">
+							<li><a href="https://github.com/njkaiser/" target="blank" class="icon fa-github fa-lg"><span class="label">Github</span></a></li>
+							<li><a href="https://www.linkedin.com/in/nate-kaiser-95536426" target="blank" class="icon fa-linkedin fa-lg"><span class="label">Email</span></a></li>
+							<li><a href="mailto:nathanielkaiser2017@u.northwestern.edu" class="icon fa-envelope-o fa-lg"><span class="label">Email</span></a></li>
+						</ul>
+						<ul class="copyright">
+							<li>Template: <a href="https://html5up.net/spectral"> SPECTRAL</a></li><li>From: <a href="http://html5up.net">HTML5 UP</a></li>						</ul>
+					</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

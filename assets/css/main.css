@@ -1997,6 +1997,7 @@
 
 		ul li {
 			padding-left: 0.5em;
+			text-align: left !important;
 		}
 
 		ul.alt {
@@ -3819,6 +3820,7 @@
     padding-top: 30px;
 		height: 0;
 		overflow: hidden;
+		margin-bottom: 10px;
 	}
 
 	.video-container iframe,

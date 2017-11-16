@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Nate Kaiser::Portfolio Website</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
+		<!--[if lte IE 9]><link rel="stylesheet" href="assets/css/ie9.css" /><![endif]-->
+		<link rel="icon" href="images/favicon.ico">
+	</head>
+	<body>
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="index.html">Nate Kaiser</a></h1>
+						<nav id="nav">
+							<ul>
+								<li class="special">
+									<a href="#menu" class="menuToggle"><span>Menu</span></a>
+									<div id="menu">
+										<ul>
+											<li><a href="index.html">Home</a></li>
+											<li><a href="index.html#projects">Projects</a></li>
+											<li><a href="index.html#about">About</a></li>
+											<li><a href="index.html#contact">Contact</a></li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</nav>
+					</header>
+
+				<!-- Main -->
+					<article id="main">
+						<header>
+							<h2>Advanced Control for Soft Robotics</h2>
+							<h4>Active Stiffness Control: Adding a Dimension to Robotic Arms</h4>
+						</header>
+						<section class="wrapper style5">
+							<div class="inner">
+
+								<div class="row">
+
+									<div class="6u 12u$(medium)">
+										<h3>About the Project</h3>
+
+										<p>My final project is more research-oriented than previous projects. I'll be exploring a control methodology for a "soft" robotic arm. <b><a href="https://en.wikipedia.org/wiki/Soft_robotics" target="blank" >Soft robotics</a></b> have gained attention in recent years for applications requiring close human contact. For example, a rigid robot might injure someone if it hits them, even at speeds we wouldn't consider dangerous. Soft robots, however, have some form of mechanical compliance to reduce shock loads to both themselves and their surroundings.</p>
+
+										<p>This allows soft robots to operate in close proximity to people, an imperative for rehabilitation tasks. Research like this is a precursor to safer and more ubiquitous rehab, factory, and household robots.</p>
+
+									</div>
+
+									<div class="6u$ 12u$(medium)">
+										<span class="image fit"><img src="images/control1.jpg" alt="qb move variable-stiffness motor" /></span>
+									</div>
+
+								</div>
+
+								<hr />
+
+								<h3 align="left">Skills Involved</h3>
+								<ul>
+									<li align="left"><b><a href="https://en.wikipedia.org/wiki/Model_predictive_control" target="blank" >Model Predictive Control (MPC)</a></b></li>
+									<li align="left">Optimal control methods</li>
+									<li align="left">Machine learning for robotics</li>
+									<li align="left">High-dimension control spaces</li>
+									<li align="left">Rehabilitation robotics</li>
+									<li align="left">ROS</li>
+									<li align="left">C++</li>
+								</ul>
+
+								<hr />
+
+								<h3 align="left">Current Status</h3>
+
+								<p>The special aspect of this project lies in the <b><a href="http://www.qbrobotics.com/products/qbmove-maker-pro/" target="blank" >somewhat odd-looking motors</a></b>, which are cube-shaped and relatively large for the amount of torque they provide. Inside, there are actually 2 motors attached to a single output shaft - the manufacturer has a helpful animation of the internals about halfway down on their <b><a href="http://www.qbrobotics.com" target="blank" >homepage</a></b>.</p>
+
+								<p>These motors are attached to the output shaft in series using elastic belts. If the motors aren't spun in unison, the elastic bands are stretched, producing opposing forces and raising the effective stiffness of the output. Essentially, this grants full control of both position <i>and</i> stiffness at each joint.</p>
+
+								<p>Today's "normal" robots don't have this extra element, and thus employ a very different control strategy from soft robots. In fact, contemporary strategies typically eliminate the desired softness altogether in pursuit of high accuracy. An emerging and promising strategy to resolve this conflict is called <b><a href="https://en.wikipedia.org/wiki/Iterative_learning_control" target="blank" >Iterative Learning Control</a></b> (ILC). ILC uses machine learning to learn intrinsic system properties that may be hard to model. For this project, we hope to learn how the mass and momentum of the arm affect the dynamics of the system, allowing an optimized, minimal-stiffness trajectory to be found and utilized for similar subsequent motions.</p>
+
+								<p>I start working on this full-time in September, and am very excited to start breaking new ground!</p>
+
+								<hr />
+
+								<h3>Learn More</h3>
+
+								<p>Nested in the <b><a href="https://www.sralab.org/labs/assistive-rehabilitation-robotics-laboratory" target="blank" >Assistive &amp; Rehabilitation Robotics Lab</a></b> at Shirley Ryan, research like this is helping advance the independence and quality of life </p>
+
+							</div>
+						</section>
+					</article>
+
+
+				<!-- Footer -->
+					<footer id="footer">
+						<ul class="icons">
+							<li><a href="https://github.com/njkaiser/" target="blank" class="icon fa-github fa-lg"><span class="label">Github</span></a></li>
+							<li><a href="https://www.linkedin.com/in/nate-kaiser-95536426" target="blank" class="icon fa-linkedin fa-lg"><span class="label">Email</span></a></li>
+							<li><a href="mailto:nathanielkaiser2017@u.northwestern.edu" class="icon fa-envelope-o fa-lg"><span class="label">Email</span></a></li>
+						</ul>
+						<ul class="copyright">
+							<li>Template: <a href="https://html5up.net/spectral"> SPECTRAL</a></li><li>From: <a href="http://html5up.net">HTML5 UP</a></li>						</ul>
+					</footer>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/skel.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
