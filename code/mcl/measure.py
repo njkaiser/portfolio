@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 import numpy as np
-import sys
 from definitions import PoseStamped
-sys.dont_write_bytecode = True
+
 
 def update_pose(pose, z, lm, add_noise=False):
     # determine our pose based on measurement data

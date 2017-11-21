@@ -2,19 +2,23 @@
 
 import numpy as np
 import scipy.stats
-from params import nparticles
-from control import deadrec
+from params import nparticles, u_noise, z_noise
+from control import motion_model
+from measure import measurement_model
 
-import matplotlib.pyplot as plt # development
 
 class particle_filter():
     '''Contains all data and methods for implementing the particle filter'''
 
     def __init__(self, initial_pose):
-        # initialize required variables for time t = 0
+        '''initialize required variables for t=0'''
         self.M = nparticles
 
+        # create initial particle set
         self.chi = np.empty((self.M, 3)) # instantiate particle set - M by 3 (x, y, theta)
+        self.chi[:, 0] = initial_pose.x + np.random.normal(0, u_noise.x_abs, self.M)
+        self.chi[:, 1] = initial_pose.y + np.random.normal(0, u_noise.y_abs, self.M)
+        self.chi[:, 2] = initial_pose.theta + np.random.normal(0, u_noise.theta_abs, self.M)
 
         # OPTION 1: ABSOLUTE NOISE (ADDITIVE) - be sure to change in update_particles, too
         # self.sigma_control = [0.05, 0.05, 0.02] # best guess value, IN PERCENT
@@ -24,12 +28,9 @@ class particle_filter():
         # self.chi[:, 2] = np.random.normal(initial_pose.y, self.sigma_control[2], self.M)
 
         # OPTION 2: RELATIVE NOISE (SCALED) - be sure to change in update_particles, too
-        self.sigma_control = [0.2, 0.2, 0.05] # best guess value, IN PERCENT
+        # self.sigma_control = [0.2, 0.2, 0.05] # best guess value, IN PERCENT
         # self.sigma_measurement = [0.2, 0.2, 0.1] # did some trials to determine x, theta (assumed y)
 
-        self.chi[:, 0] = initial_pose.x*np.random.normal(1, self.sigma_control[0], self.M)
-        self.chi[:, 1] = initial_pose.y*np.random.normal(1, self.sigma_control[1], self.M)
-        self.chi[:, 2] = initial_pose.theta*np.random.normal(1, self.sigma_control[2], self.M)
         # print "filter.py line 37, last particle =", self.chi[-1]
         self.w = np.empty(self.M)
         self.w = self.update_weights(initial_pose)
@@ -51,26 +52,19 @@ class particle_filter():
 
     def update_particles(self, u):
         '''calculate updated pose for each particle'''
-        self.chi = deadrec(u, self.chi, add_noise=True)
+        self.chi = motion_model(u, self.chi, add_noise=True)
         for index, theta in enumerate(self.chi[:, 2]):
             if theta > np.pi: # ensure heading angle is between -pi and pi
                 self.chi[index, 2] = theta - 2 * np.pi
             elif theta < -np.pi:
                 self.chi[index, 2]  = theta + 2 * np.pi
-
-
-        # MAYBE TRY USING ERROR BASED OFF OF ANGLE ERROR PROPOGATED BY A DISTANCE
-        # AND INCLUDE DISTANCE ERROR, SO IT WOULD BETTER SIMULATE THE PARTICLE
-        # 'DRIVING' FROM x_t-1 TO x_t
-
-        # d = np.sqrt(delta[0]**2 + delta[1]**2) #+ randn(self.M)
-
         # print self.chi.max(). print self.chi.min(), print self.w.max()
         # print "filter.py line 79, last particle =", self.chi[-1]
         return self.chi
 
 
     def update_weights(self, pose):
+        '''update weights given measurement data to an observed landmark'''
         # dist = np.sqrt((self.chi[:, 0] - pose.x)**2 + (self.chi[:, 1] - pose[2])**2)
         x_diff = self.chi[:, 0] - pose.x
         y_diff = self.chi[:, 1] - pose.y
@@ -125,7 +119,6 @@ class particle_filter():
         chi_temp = self.chi[:, 0:3]
         mu = np.average(self.chi[:, 0:3], weights=self.w, axis=0)
         var = np.average((chi_temp - mu)**2, weights=self.w, axis=0)
-
         return mu, var
 
 
@@ -154,6 +147,7 @@ class particle_filter():
         # neither 1 nor 2 helped, skipping 3 since I don't have much time and it's not robust
 
         print "ENTERED RECONDITION STEP"
+        return
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 import numpy as np
 from definitions import PoseStamped
 from params import u_noise
@@ -10,12 +11,12 @@ from params import u_noise
 
 def calc_delta(u):
     if u.w == 0:
-        # case when robot is driving straight with no angular velocity
+        # case: robot is driving straight (no angular velocity)
         robot_dx = u.v * u.dt
         robot_dy = 0.0
         robot_dtheta = 0.0
     else:
-        # calculate trajectory radius
+        # case: robot driving in arc (calculate trajectory radius)
         r = u.v / u.w # this is s = r * theta, rearranged and simplified
         robot_dtheta = u.w * u.dt
         robot_dx = r * np.sin(robot_dtheta) # robot +x is forward
@@ -24,8 +25,8 @@ def calc_delta(u):
     return robot_dx, robot_dy, robot_dtheta
 
 
-def deadrec(u, pose, add_noise=False): # IMPLEMENT DEAD RECKONING
-    '''return current pose given control input, previous pose, and dt'''
+def motion_model(u, pose, add_noise=False):
+    '''dead reckon current pose given control input, previous pose, and dt'''
 
     # TODO: this may not be necessary when filter is implemented, revisit
     # check if there's a control input, otherwise return x_t = x_t-1 (prevents drift when robot isn't moving)
@@ -35,6 +36,7 @@ def deadrec(u, pose, add_noise=False): # IMPLEMENT DEAD RECKONING
     # calculate delta pose in robot coordinates
     robot_dx, robot_dy, robot_dtheta = calc_delta(u)
 
+
     if isinstance(pose, PoseStamped):
         # transform robot deltas to global coordinate frame
         dx = robot_dx * np.cos(pose.theta) - robot_dy * np.sin(pose.theta)
@@ -43,9 +45,9 @@ def deadrec(u, pose, add_noise=False): # IMPLEMENT DEAD RECKONING
 
         # add noise to our control step
         if add_noise:
-            dx *= np.random.normal(1, u_noise.x, 1)
-            dy *= np.random.normal(1, u_noise.y, 1)
-            dtheta *= np.random.normal(1, u_noise.theta_rel, 1)
+            dx *= np.random.normal(1, u_noise.x_rel, 1)
+            dy *= np.random.normal(1, u_noise.y_rel, 1)
+            dtheta = dtheta * np.random.normal(1, u_noise.theta_rel, 1) + np.random.normal(0, u_noise.theta_abs, 1)
 
         # calculate global pose from deltas
         pose_new = PoseStamped(pose.t + u.dt, pose.x + dx, pose.y + dy, pose.theta + dtheta)
@@ -56,16 +58,15 @@ def deadrec(u, pose, add_noise=False): # IMPLEMENT DEAD RECKONING
 
         if add_noise:
             # random noise vectors for x, y, theta
-            n_dx = np.random.normal(1, u_noise.x, len(pose))
-            n_dy = np.random.normal(1, u_noise.y, len(pose))
+            n_dx = np.random.normal(1, u_noise.x_rel, len(pose))
+            n_dy = np.random.normal(1, u_noise.y_rel, len(pose))
             n_dtheta_rel = np.random.normal(1, u_noise.theta_rel, len(pose))
             n_dtheta_abs = np.random.normal(0, u_noise.theta_abs, len(pose))
 
-            # transform robot deltas to global coordinate frame
-            # and add noise at the same time
+            # transform robot deltas to global coordinate frame (plus noise)
+            dx = n_dx * robot_dx * np.cos(pose[:, 2] + n_dtheta_abs) - n_dy * robot_dy * np.sin(pose[:, 2] + n_dtheta_abs)
+            dy = n_dx * robot_dx * np.sin(pose[:, 2] + n_dtheta_abs) + n_dy * robot_dy * np.cos(pose[:, 2] + n_dtheta_abs)
             dtheta = n_dtheta_rel * robot_dtheta + n_dtheta_abs
-            dx = n_dx * robot_dx * np.cos(pose[:, 2] + dtheta) - n_dy * robot_dy * np.sin(pose[:, 2] + dtheta)
-            dy = n_dx * robot_dx * np.sin(pose[:, 2] + dtheta) + n_dy * robot_dy * np.cos(pose[:, 2] + dtheta)
 
         else:
             # transform robot deltas to global coordinate frame
@@ -79,7 +80,7 @@ def deadrec(u, pose, add_noise=False): # IMPLEMENT DEAD RECKONING
         return pose_new
 
     else:
-        raise Exception('control.py::deadrec() function can only handle inputs of type PoseStamped or numpy ndarray')
+        raise Exception('control.py::motion_model() function can only handle inputs of type PoseStamped or numpy ndarray')
 
 
 if __name__ == '__main__':
