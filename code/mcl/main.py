@@ -7,7 +7,7 @@ from math import sqrt
 # project includes
 from control import motion_model
 from fileinit import parse_odometry, parse_measurement, parse_groundtruth, parse_landmarks
-import measure
+from measure import measurement_model
 from plot import PathTrace, plot_particles
 import debug
 from params import N, test_file_name#, odometry_file_name, measurement_file_name, groundtruth_file_name, landmark_file_name, barcode_file_name
@@ -52,7 +52,7 @@ from particle_filter import particle_filter
 #     ctrlr_test.append(controller_test) # collect points for plotting later
 #
 #     # filter this data and create filter points (no measurements incorporated because we have none)
-#     PF_test.update_particles(u_test[i])
+#     PF_test.update_pose(u_test[i])
 #
 #     # PF_test.update_weights(controller_test)
 #     # PF_test.resample()
@@ -115,6 +115,7 @@ estimated = [GT[0]] # begin fully localized
 groundtruth = [GT[0]]
 
 # TODO: remove these and just use deadrec_data[-1], etc?
+pose = GT[0]
 deadrec_pose = GT[0]
 filtered_pose = GT[0]
 
@@ -128,23 +129,23 @@ angle_cum = 0
 
 for i in xrange(N):
     # use the contoller model to dead reckon our pose
-    deadrec_pose = motion_model(U[i], deadrec_pose)
-    deadrec_data.append(deadrec_pose) # collect these points for plotting later
+    pose = motion_model(U[i], pose)
+    deadrec_data.append(pose) # collect these points for plotting later
 
     distance_cum += sqrt((deadrec_data[-1].x - deadrec_data[-2].x)**2 + (deadrec_data[-1].y - deadrec_data[-2].y)**2) # running sum of linear disance traveled
     angle_cum += abs(deadrec_data[-1].x - deadrec_data[-2].x) # running sum of angular disance traveled
 
-    PF.update_particles(U[i])
+    PF.update_pose(U[i])
 
     # determine which groundtruth data point is closest to our control point
-    while(GT[m].t <= U[i].t):
+    while GT[m].t <= U[i].t:
         m += 1
     # true_pose = [ x[m][0], x[m][1], x[m][2], x[m][3] ]
     groundtruth.append(GT[m])
 
     # TODO: should this only incorporate the LAST valid measurement, in case a bunch of measurements are applied in succession and kill our particle variance?
     # run this portion if we have a measurement to incorporate
-    while(Z[j].t <= U[i].t): # incorporate measurements up to the current control step's time
+    while Z[j].t <= U[i].t: # incorporate measurements up to the current control step's time
         print "measured stuff"
         print "dist/angle:", distance_cum, angle_cum
 
@@ -152,15 +153,18 @@ for i in xrange(N):
             raise Exception("I shouldn't be here until the very end?")
             break
 
-        try:
-            pose = measure.update_pose(deadrec_pose, Z[j], LM)
-        except LookupError: # if there's no data for the landmark subject #
-            # print "Data not found for landmark #", z[j][1], " (it's probably a robot)"
-            j += 1
-            print "every time?"
-            continue # we skip the rest of the loop and start again
+        j += 1 # increment to next measurement
 
-        measured.append(pose) # collect these points for plotting later
+
+        # try:
+        #     pose = measurement_model(pose, Z[j], LM)
+        # except LookupError: # if there's no data for the landmark subject #
+        #     # print "Data not found for landmark #", z[j][1], " (it's probably a robot)"
+        #     j += 1
+        #     print "every time?"
+        #     continue # we skip the rest of the loop and start again
+        #
+        # measured.append(pose) # collect these points for plotting later
 
         # debug_measured_pose, r, b, r_real, b_real = debug.determine_sensor_model(true_pose, z[j], lm)
         # dbg_range_error.append(r_error)
@@ -174,39 +178,40 @@ for i in xrange(N):
         # measurement_error.append(np.sqrt((position[1]-true_pose[1])**2 + (position[2] - true_pose[2])**2))
         # heading_error.append(position[3]-true_pose[3])
 
-        print "got here?"
-        if distance_cum > 0.01 or angle_cum > 0.01: # only filter if we've moved, otherwise we'll have particle variance issues
-            print "moved"
-            PF.update_weights(pose) # update weights based on measurement
-            w_trblsht = PF.resample() # resample
-            mu, var = PF.extract() # extract our belief from the particle set
-            mu = [U[i].t, mu[0], mu[1], mu[2]] # prepend time for easy plotting later
+    if distance_cum > 0.01 or angle_cum > 0.01: # only filter if we've moved, otherwise we'll have particle variance issues
+        print "moved"
+        # check if measurement is to a valid landmark before trying to use it...
+        if not PF.update_weights(Z[j], LM): # update weights based on measurement
+            continue
+
+        w_trblsht = PF.resample() # resample
+        mu, var = PF.extract() # extract our belief from the particle set
+        mu = [U[i].t, mu[0], mu[1], mu[2]] # prepend time for easy plotting later
 
 
 
-            estimated.append(mu) # collect these points for plotting later
+        estimated.append(mu) # collect these points for plotting later
 
-            distance_cum = 0 # reset to 0 for the next loop
-            angle_cum = 0 # reset to 0 for the next loop
+        distance_cum = 0 # reset to 0 for the next loop
+        angle_cum = 0 # reset to 0 for the next loop
 
-            # THIS SECTION PLOTS HISTOGRAMS FOR PARTICLE VALUES AND WEIGHTS EVERY 100 ITERATIONS
-            # IT'S NOT PART OF THE MAIN CODE, JUST TO HELP WITH DEBUGGING
-            # if i >= 100 * k:
-            #     # print "  ITER #:", i
-            #     # print "PARTICLE:", np.average(chi_trblsht, axis=0), chi_trblsht.min(), chi_trblsht.max()
-            #     # print "  WEIGHT:", np.average(w_trblsht, axis=0), w_trblsht.min(), w_trblsht.max()
-            #
-            #     # troubleshooting
-            #     plt.figure(i)
-            #     plt.hist(w_trblsht*1000, bins=20, alpha=0.5, color='r', label='weight (*10^3)')#, range=[0,0.01])
-            #     plt.hist(chi_trblsht[:, 0], bins=20, alpha=0.5, color='b', label='particle x')#, range=[0.5,1.5])
-            #     plt.hist(chi_trblsht[:, 1], bins=20, alpha=0.5, color='g', label='particle y')
-            #     plt.hist(chi_trblsht[:, 2], bins=20, alpha=0.5, color='m', label='particle theta')
-            #     plt.legend(loc='upper left')
-            #     plt.show()
-            #     plt.close()
-            #     k += 1
-        j += 1 # increment to next measurement
+        # THIS SECTION PLOTS HISTOGRAMS FOR PARTICLE VALUES AND WEIGHTS EVERY 100 ITERATIONS
+        # IT'S NOT PART OF THE MAIN CODE, JUST TO HELP WITH DEBUGGING
+        # if i >= 100 * k:
+        #     # print "  ITER #:", i
+        #     # print "PARTICLE:", np.average(chi_trblsht, axis=0), chi_trblsht.min(), chi_trblsht.max()
+        #     # print "  WEIGHT:", np.average(w_trblsht, axis=0), w_trblsht.min(), w_trblsht.max()
+        #
+        #     # troubleshooting
+        #     plt.figure(i)
+        #     plt.hist(w_trblsht*1000, bins=20, alpha=0.5, color='r', label='weight (*10^3)')#, range=[0,0.01])
+        #     plt.hist(chi_trblsht[:, 0], bins=20, alpha=0.5, color='b', label='particle x')#, range=[0.5,1.5])
+        #     plt.hist(chi_trblsht[:, 1], bins=20, alpha=0.5, color='g', label='particle y')
+        #     plt.hist(chi_trblsht[:, 2], bins=20, alpha=0.5, color='m', label='particle theta')
+        #     plt.legend(loc='upper left')
+        #     plt.show()
+        #     plt.close()
+        #     k += 1
 
 
     # these 2 lines just allow me to print the iteration # without taking a lot of space in the terminal window

@@ -20,20 +20,20 @@ class particle_filter():
         self.chi[:, 1] = initial_pose.y + np.random.normal(0, u_noise.y_abs, self.M)
         self.chi[:, 2] = initial_pose.theta + np.random.normal(0, u_noise.theta_abs, self.M)
 
-        # OPTION 1: ABSOLUTE NOISE (ADDITIVE) - be sure to change in update_particles, too
+        # OPTION 1: ABSOLUTE NOISE (ADDITIVE) - be sure to change in update_pose, too
         # self.sigma_control = [0.05, 0.05, 0.02] # best guess value, IN PERCENT
         self.sigma_measurement = [0.1, 0.1, 0.5] # did some trials to determine x, theta (assumed y = x)
         # self.chi[:, 0] = np.random.normal(initial_pose.t, self.sigma_control[0], self.M)
         # self.chi[:, 1] = np.random.normal(initial_pose.x, self.sigma_control[1], self.M)
         # self.chi[:, 2] = np.random.normal(initial_pose.y, self.sigma_control[2], self.M)
 
-        # OPTION 2: RELATIVE NOISE (SCALED) - be sure to change in update_particles, too
+        # OPTION 2: RELATIVE NOISE (SCALED) - be sure to change in update_pose, too
         # self.sigma_control = [0.2, 0.2, 0.05] # best guess value, IN PERCENT
         # self.sigma_measurement = [0.2, 0.2, 0.1] # did some trials to determine x, theta (assumed y)
 
         # print "filter.py line 37, last particle =", self.chi[-1]
-        self.w = np.empty(self.M)
-        self.w = self.update_weights(initial_pose)
+        self.w = np.ones(self.M) / float(self.M)
+        # self.w = self.update_weights(initial_pose)
 
         # print self.w
         # print "END OF WEIGHTS, START OF X, Y, Z:"
@@ -50,7 +50,7 @@ class particle_filter():
         # self.w[-1] = 2./self.M # just messing around trying to get this shit to work
 
 
-    def update_particles(self, u):
+    def update_pose(self, u):
         '''calculate updated pose for each particle'''
         self.chi = motion_model(u, self.chi, add_noise=True)
         for index, theta in enumerate(self.chi[:, 2]):
@@ -63,9 +63,14 @@ class particle_filter():
         return self.chi
 
 
-    def update_weights(self, pose):
+    def update_weights(self, z, LM):
         '''update weights given measurement data to an observed landmark'''
         # dist = np.sqrt((self.chi[:, 0] - pose.x)**2 + (self.chi[:, 1] - pose[2])**2)
+
+        if z.s not in LM:
+            print "measurement was to a robot, not a landmark"
+            return 0
+
         x_diff = self.chi[:, 0] - pose.x
         y_diff = self.chi[:, 1] - pose.y
         theta_diff = (self.chi[:, 2] - pose.theta)
@@ -93,7 +98,7 @@ class particle_filter():
         #     self.recondition()
             # self.update_weights(pose) # RECURSIVE, MAKE SURE THIS IS CALLED CORRECTLY
 
-        return self.w
+        return 1
 
 
     def resample(self):
