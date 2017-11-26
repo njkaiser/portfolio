@@ -4,47 +4,41 @@ import numpy as np
 from definitions import Pose, PoseStamped, MeasurementStamped
 from scipy.stats import norm
 from params import z_noise, min_prob
-from math import isnan
-
-def pdf():
-    return 1.0 / sqrt(2*pi*pow(sigma, 2)) * exp(-pow(v, 2) / (2*pow(sigma, 2)))
+# from math import isnan
 
 
-def measurement_model(pose, z, LM, add_noise=False):
-    ''' determine our pose based on measurement data (meant to emulate
-    landmark_model_known_correspondence from Probabilistic Robotics).
-    RETURN = probability of measurement given pose'''
-
-    lm = LM[z.s] # subject (landmark ID)
+def calc_expected_measurement(pose, lm):
+    '''calculates expected measurement given pose data and a landmark'''
 
     if isinstance(pose, PoseStamped):
         r_expected = np.sqrt((lm.x - pose.x)**2 + (lm.y - pose.y)**2)
         b_expected = np.arctan2(lm.y - pose.y, lm.x - pose.x) - pose.theta
-
-        r_prob = norm(r_expected, z_noise.r_rel * r_expected + z_noise.r_abs).pdf(z.r)# + min_prob
-        b_prob = norm(b_expected, z_noise.b_abs).pdf(z.b)# + min_prob
-        # b_prob = min_prob if isnan(b_prob) else b_prob
-        # total_prob = r_prob * b_prob # calculate total probability of particle being at measured range/bearing
-        # return r_prob, b_prob, total_prob
-        return r_prob * b_prob
-
     elif isinstance(pose, np.ndarray):
         r_expected = np.sqrt((lm.x - pose[:, 0])**2 + (lm.y - pose[:, 1])**2)
         b_expected = np.arctan2(lm.y - pose[:, 1], lm.x - pose[:, 0]) - pose[:, 2]
-        # print "r_expected:\n", r_expected
-        # print "b_expected:\n", b_expected
-
-        r_prob = norm(r_expected, z_noise.r_rel * r_expected + z_noise.r_abs).pdf(z.r)# + min_prob
-        b_prob = norm(b_expected, z_noise.b_abs).pdf(z.b)# + min_prob
-        # print "r_prob:\n", r_prob
-        # print "b_prob:\n", b_prob
-        # b_prob = min_prob if isnan(b_prob) else b_prob
-        # total_prob = r_prob * b_prob # calculate total probability of particle being at measured range/bearing
-        # return r_prob, b_prob, total_prob
-        return r_prob * b_prob
-
     else:
-        raise Exception('control.py::motion_model() function can only handle inputs of type PoseStamped or numpy ndarray')
+        raise Exception('measurement.py::calc_expected_pose() function can only handle inputs of type PoseStamped or numpy ndarray')
+    return r_expected, b_expected
+
+
+# def calc_expected_pose(z, lm):
+#     '''calculates expected pose given measurement data and a landmark'''
+#
+#     theta_expected =
+#     x_expected = lm.x - z.r * np.cos(z.theta) +
+#
+#     return Pose(x_expected, y_expected, theta_expected)
+
+
+def measurement_model(pose, z, LM, add_noise=False):
+    ''' calculates probability of robot pose based given measurement (similar
+    to landmark_model_known_correspondence from Probabilistic Robotics)'''
+
+    lm = LM[z.s] # subject (landmark ID)
+    r_expected, b_expected = calc_expected_measurement(pose, lm)
+    r_prob = norm(r_expected, z_noise.r_rel * r_expected + z_noise.r_abs).pdf(z.r)# + min_prob
+    b_prob = norm(b_expected, z_noise.b_abs).pdf(z.b)# + min_prob
+    return r_prob * b_prob
 
 
 
@@ -54,51 +48,51 @@ if __name__ == '__main__':
     ### UNIT TESTING ###
     import matplotlib.pyplot as plt
 
-    # ### RANGE TEST:
-    # p = PoseStamped(0.0, 0.0, 0.0, 0.0)
-    # z = MeasurementStamped(0.0, 99, 1.5, 0.0)
-    # lm = {}
-    # lm[99] = Pose(3.0, 0.0, 0.0)
-    #
-    # x_axis = []
-    # prob_graph = []
-    # for x in np.linspace(0.0, 3.0, 300):
-    #     p.x = x
-    #     prob = measurement_model(p, z, lm)
-    #     x_axis.append(x)
-    #     prob_graph.append(prob)
-    #
-    # print prob_graph
-    # print len(prob_graph)
-    # plt.plot(x_axis, prob_graph)
-    # # plt.plot(x_axis[0:150], prob_graph[0:150])
-    # # blah = list(reversed(prob_graph[150:]))
-    # # plt.plot(x_axis[0:150], blah)
-    # plt.show()
-    # plt.close()
+    ### RANGE TEST:
+    p = PoseStamped(0.0, 0.0, 0.0, 0.0)
+    z = MeasurementStamped(0.0, 99, 1.5, 0.0)
+    lm = {}
+    lm[99] = Pose(3.0, 0.0, 0.0)
+
+    x_axis = []
+    prob_graph = []
+    for x in np.linspace(0.0, 3.0, 300):
+        p.x = x
+        prob = measurement_model(p, z, lm)
+        x_axis.append(x)
+        prob_graph.append(prob)
+
+    print prob_graph
+    print len(prob_graph)
+    plt.plot(x_axis, prob_graph)
+    # plt.plot(x_axis[0:150], prob_graph[0:150])
+    # blah = list(reversed(prob_graph[150:]))
+    # plt.plot(x_axis[0:150], blah)
+    plt.show()
+    plt.close()
 
 
-    # ### BEARING TEST:
-    # p = PoseStamped(0.0, 0.0, 0.0, 0.0)
-    # z = MeasurementStamped(0.0, 99, 3.0, 0.0)
-    # lm = {}
-    # lm[99] = Pose(3.0, 0.0, 0.0)
-    #
-    # x_axis = []
-    # prob_graph = []
-    # for theta in np.linspace(-0.78, 0.78, 300):
-    #     p.theta = theta
-    #     prob = measurement_model(p, z, lm)
-    #     x_axis.append(theta)
-    #     prob_graph.append(prob)
-    #
-    # print prob_graph
-    # print len(prob_graph)
-    # plt.plot(x_axis, prob_graph)
-    # # plt.plot(x_axis[0:150], prob_graph[0:150])
-    # # blah = list(reversed(prob_graph[150:]))
-    # # plt.plot(x_axis[0:150], blah)
-    # plt.show()
+    ### BEARING TEST:
+    p = PoseStamped(0.0, 0.0, 0.0, 0.0)
+    z = MeasurementStamped(0.0, 99, 3.0, 0.0)
+    lm = {}
+    lm[99] = Pose(3.0, 0.0, 0.0)
+
+    x_axis = []
+    prob_graph = []
+    for theta in np.linspace(-0.78, 0.78, 300):
+        p.theta = theta
+        prob = measurement_model(p, z, lm)
+        x_axis.append(theta)
+        prob_graph.append(prob)
+
+    print prob_graph
+    print len(prob_graph)
+    plt.plot(x_axis, prob_graph)
+    # plt.plot(x_axis[0:150], prob_graph[0:150])
+    # blah = list(reversed(prob_graph[150:]))
+    # plt.plot(x_axis[0:150], blah)
+    plt.show()
 
 
     ### ARRAY TEST:

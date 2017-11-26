@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
-# USER INPUT VALUES, INITIAL DATA SETUP, ETC GOES HERE:
 
 ### FILENAMES:
-test_file_name = 'particle_test_spiral.dat'
 dataset = 'ds1' # choices are ds0 or ds1
+test_file_name = 'particle_test_spiral.dat'
 odometry_file_name = dataset + '/' + dataset + '_Odometry.dat'
 measurement_file_name = dataset + '/' + dataset + '_Measurement.dat'
 groundtruth_file_name = dataset + '/' + dataset + '_Groundtruth.dat'
@@ -13,7 +12,11 @@ barcode_file_name = dataset + '/' + dataset + '_Barcodes.dat'
 
 
 ### MAIN PROGRAM OPTIONS:
-N = 1000 # clip data for quicker development
+N = 2500 # clip data for quicker development
+
+
+### FILTER PARAMETERS:
+nparticles = 500 # number of particles
 
 
 ### MOTION MODEL PARAMETERS:
@@ -22,8 +25,8 @@ class u_noise(object):
     x_abs = 0.005 # x noise (absolute) in meters
     y_rel = 0.001 # y noise should mostly come from theta noise, since robot can't move sideways
     y_abs = 0.005 # y noise (absolute) in meters
-    theta_rel = 0.050 # heading noise (relative) in percent (0.01 = 1%)
-    theta_abs = 0.035 # heading noise (absolute) in radians
+    theta_rel = 0.100 # heading noise (relative) in percent (0.01 = 1%)
+    theta_abs = 0.010 # heading noise (absolute) in radians
 
 
 ### MEASUREMENT MODEL PARAMETERS:
@@ -35,14 +38,6 @@ class z_noise(object):
     b_abs = 0.20 # bearing noise (absolute) in radians
 
 
-### PARTICLE FILTER PARAMETERS:
-nparticles = 500 # number of particles
 
-
-# control_x_stdev = 0.2 # stddev for particle motion in x-direction
-# control_y_stdev = 0.2 # stddev for particle motion in y-direction
-# control_theta_stdev = 0.05 # stddev for particle motion in theta
-
-# measurement_x_stdev = 0.1 # stddev for measurements in x-direction
-# measurement_y_stdev = 0.1 # stddev for measurements in y-direction
-# measurement_theta_stdev = 0.5 # stddev for measurements in theta
+if __name__ == '__main__':
+    print "[WARNING] params.py should not be run as main"

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+
 import numpy as np
 import matplotlib.pyplot as plt
 from particle_filter import particle_filter
+
 
 def PathTrace(data, plotname, hold, color, label):
     # plt.figure(1)
@@ -15,13 +17,13 @@ def PathTrace(data, plotname, hold, color, label):
         plt.show()
 
 
-def plot_particles(fig, ax, PF):
+def plot_particles(fig, ax, particles):
     '''plot particles (represented by arrows)'''
     fig, ax = fig, ax # TODO do I need this?
 
-    theta = np.array([row[2] for row in PF.chi])
-    X = np.array([row[0] for row in PF.chi])
-    Y = np.array([row[1] for row in PF.chi])
+    theta = np.array([row[2] for row in particles])
+    X = np.array([row[0] for row in particles])
+    Y = np.array([row[1] for row in particles])
     U = np.cos(theta)
     V = np.sin(theta)
     # print "sizes:", X.shape, Y.shape, U.shape, V.shape

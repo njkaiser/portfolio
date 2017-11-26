@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+
 import numpy as np
-from itertools import takewhile
+# from itertools import takewhile
 from definitions import Pose, ControlStamped, PoseStamped, MeasurementStamped
 from params import landmark_file_name, barcode_file_name
 from params import odometry_file_name, measurement_file_name, groundtruth_file_name, landmark_file_name, barcode_file_name
@@ -18,9 +19,10 @@ def parse_measurement(f=measurement_file_name):
     return [MeasurementStamped(*a) for a in np.loadtxt(f)] # pull control data from file
 
 
-def parse_groundtruth(end_time, f=groundtruth_file_name):
-    GT = np.loadtxt(f) # pull control data from file
-    return [PoseStamped(*a) for a in takewhile(lambda b: b[0] <= end_time, GT)]
+def parse_groundtruth(f=groundtruth_file_name):
+    # GT = np.loadtxt(f) # pull control data from file
+    return [PoseStamped(*a) for a in np.loadtxt(f)]
+    # return [PoseStamped(*a) for a in takewhile(lambda b: b[0] <= end_time, np.loadtxt(f))]
 
 
 def parse_landmarks(f=landmark_file_name):

@@ -1,22 +1,19 @@
 #!/usr/bin/env python
+
 import numpy as np
 import matplotlib.pyplot as plt
 from math import sqrt
 
-
 # project includes
 from control import motion_model
 from fileinit import parse_odometry, parse_measurement, parse_groundtruth, parse_landmarks
-from measure import measurement_model
+from measure import measurement_model, calc_expected_measurement
 from plot import PathTrace, plot_particles
-import debug
-from params import N, test_file_name#, odometry_file_name, measurement_file_name, groundtruth_file_name, landmark_file_name, barcode_file_name
-from definitions import Control, ControlStamped, Pose, PoseStamped, Measurement, MeasurementStamped#, PositionData
+from params import N, test_file_name
+from definitions import Control, ControlStamped, Pose, PoseStamped, Measurement, MeasurementStamped
 from particle_filter import particle_filter
-# np.set_printoptions(threshold=np.nan) # prints entire numpy array
+# import debug
 
-
-# def main():
 
 # # ##########################
 # # ##### START OF TEST ######
@@ -63,7 +60,7 @@ from particle_filter import particle_filter
 #
 #     # fig, ax = plt.fig()
 #     particles = np.vstack((particles, PF_test.chi))
-#     # plot_particles(fig, ax, PF_test)
+#     # plot_particles(fig, ax, PF_test.chi)
 #
 #     # print PF_test.chi
 #     # print "particles.shape:", particles.shape
@@ -82,7 +79,7 @@ from particle_filter import particle_filter
 # PathTrace(ctrlr_test, 'HW0, Part A, #2', True, 'r', 'Controller Data (with noise)')
 # PathTrace(filtered_test, 'HW0, Part A #2 & Part B #7', True, 'b', 'Filter Implementation')
 # PF_test.chi = particles
-# plot_particles(fig, ax, PF_test)
+# plot_particles(fig, ax, PF_test.chi)
 #
 # plt.show()
 # assert False
@@ -99,20 +96,22 @@ from particle_filter import particle_filter
 # dbg_range_error = []
 # dbg_heading_error = []
 # mu = GT[0]
+# true_pose = GT[0] # just for debugging
 particles = np.array([0,0,0]) # seed with one data point just cuz
 
 U = parse_odometry() # odometry data
-N = N if len(U) > N else len(U) # truncate max # iterations if > length of data
 Z = parse_measurement() # measurement data
-GT = parse_groundtruth(U[N].t) # groundtruth data
+GT = parse_groundtruth() # groundtruth data
 LM = parse_landmarks() # landmark data
+N = min(len(U), N) # truncate max # iterations if > length of data
 print "total number of control iterations:", N
 
 # containers for storing data for plotting later
 deadrec_data = [GT[0]] # begin fully localized
-measured = [GT[0]] # begin fully localized
 estimated = [GT[0]] # begin fully localized
 groundtruth = [GT[0]]
+measurements = []
+expected_measurements = []
 
 # TODO: remove these and just use deadrec_data[-1], etc?
 pose = GT[0]
@@ -122,7 +121,6 @@ filtered_pose = GT[0]
 # initialize required variables
 PF = particle_filter(GT[0])
 
-true_pose = GT[0] # just for debugging
 j, k, m = 0, 0, 0 # various indices
 distance_cum = 0
 angle_cum = 0
@@ -146,8 +144,8 @@ for i in xrange(N):
     # TODO: should this only incorporate the LAST valid measurement, in case a bunch of measurements are applied in succession and kill our particle variance?
     # run this portion if we have a measurement to incorporate
     while Z[j].t <= U[i].t: # incorporate measurements up to the current control step's time
-        print "measured stuff"
-        print "dist/angle:", distance_cum, angle_cum
+        # print "measured stuff"
+        # print "dist/angle:", distance_cum, angle_cum
 
         if j == len(Z) - 1: # there's no more measurement data to use, exit loop
             raise Exception("I shouldn't be here until the very end?")
@@ -178,15 +176,25 @@ for i in xrange(N):
         # measurement_error.append(np.sqrt((position[1]-true_pose[1])**2 + (position[2] - true_pose[2])**2))
         # heading_error.append(position[3]-true_pose[3])
 
+    # DEBUG
+    try:
+        expected_measurements.append(calc_expected_measurement(GT[m], LM[Z[j].s]))
+        measurements.append(Z[j])
+    except KeyError:
+        print "why am I broken?", Z[j].s
+        for key in LM:
+            print key, LM[key]
+        assert False
+
     if distance_cum > 0.01 or angle_cum > 0.01: # only filter if we've moved, otherwise we'll have particle variance issues
-        print "moved"
+        # print "moved"
         # check if measurement is to a valid landmark before trying to use it...
         if not PF.update_weights(Z[j], LM): # update weights based on measurement
             continue
 
         w_trblsht = PF.resample() # resample
         mu, var = PF.extract() # extract our belief from the particle set
-        mu = [U[i].t, mu[0], mu[1], mu[2]] # prepend time for easy plotting later
+        mu = PoseStamped(U[i].t, *mu) # prepend time for easy plotting later
 
 
 
@@ -217,10 +225,26 @@ for i in xrange(N):
     # these 2 lines just allow me to print the iteration # without taking a lot of space in the terminal window
     # sys.stdout.flush()
     # sys.stdout.write('%s %d\r' % ("main loop iteration: ", i))
+    # if i%20 == 0:# and i > 550:
+    #     particles = np.vstack((particles, PF.chi))
+    #     fig, ax = plt.subplots()
+    #     plotname = 'HW0, Part A, #3 -Simulated Controller vs Ground Truth Data'
+    #     # plot the path of our dead reckoning
+    #     PathTrace(deadrec_data, plotname, True, 'r', 'Simulated Controller')
+    #     # plot the position based on measurements taken
+    #     # PathTrace(measured, plotname, True, '0.9', 'Measured Data')
+    #     # plot the filter-estimated position
+    #     PathTrace(estimated, plotname, True, 'b', 'Filtered Data')
+    #     # plot the ground truth path
+    #     PathTrace(groundtruth, plotname, True, 'g', 'Ground Truth Data')
+    #     plot_particles(fig, ax, particles)
+    #     plt.show()
+
     if i%100 == 0:
         print "main loop iteration", i
         particles = np.vstack((particles, PF.chi))
-        print "particles.shape:", particles.shape
+        # print "m, i, len(GT), len(U):", m, i, len(GT), len(U)
+        # print "particles.shape:", particles.shape
 
 
 
@@ -233,7 +257,7 @@ for i in xrange(N):
 # PLOTTING AND DATA OUTPUT
 # print out # of data points in each plotted dataset, for knowledge
 print "deadrec plot data has ", len(deadrec_data), " elements"
-print "measured plot data has ", len(measured), " elements"
+print "measurement plot data has ", len(measurements), " elements"
 print "groundtruth plot data has ", len(groundtruth), " elements"
 print "filtered plot data has ", len(estimated), " elements"
 
@@ -247,18 +271,18 @@ PathTrace(deadrec_data, plotname, True, 'r', 'Simulated Controller')
 PathTrace(estimated, plotname, True, 'b', 'Filtered Data')
 # plot the ground truth path
 PathTrace(groundtruth, plotname, True, 'g', 'Ground Truth Data')
-PF.chi = particles
-plot_particles(fig, ax, PF)
+plot_particles(fig, ax, particles)
 plt.show()
-assert False
+# assert False
 
 
 # plot x position vs time, with measurement data
 plt.figure('x-position vs Time')
 plt.subplot(111)
-plt.plot(estimated.t, estimated.x, color='b', label="Filtered X")
-plt.plot(groundtruth.t, groundtruth.x, color='g', label="Groundtruth X")
-plt.plot(measured.t, measured.x, color='y', marker='.', label="Measured X")
+plt.plot([p.t for p in deadrec_data], [p.x for p in deadrec_data], color='r', label="Deadrec X")
+plt.plot([p.t for p in estimated], [p.x for p in estimated], color='b', label="Filtered X")
+plt.plot([p.t for p in groundtruth], [p.x for p in groundtruth], color='g', label="Groundtruth X")
+plt.plot([z.t for z in measurements], [z.x for z in groundtruth], color='g', label="Groundtruth X")
 plt.title('x-position vs Time')
 plt.xlabel('time [s]')
 plt.ylabel('position [m]')
@@ -269,9 +293,9 @@ plt.close()
 # plot y position vs time, with measurement data
 plt.figure('y-position vs Time')
 plt.subplot(111)
-plt.plot(estimated.t, estimated.y, color='b', label="Filtered Y")
-plt.plot(groundtruth.t, groundtruth.y, color='g', label="Groundtruth Y")
-plt.plot(measured.t, measured.y, color='y', marker='.', label="Measured Y")
+plt.plot([p.t for p in deadrec_data], [p.y for p in deadrec_data], color='r', label="Deadrec Y")
+plt.plot([p.t for p in estimated], [p.y for p in estimated], color='b', label="Filtered Y")
+plt.plot([p.t for p in groundtruth], [p.y for p in groundtruth], color='g', label="Groundtruth Y")
 plt.title('y-position vs Time')
 plt.xlabel('time [s]')
 plt.ylabel('position [m]')
@@ -279,12 +303,12 @@ plt.legend()
 plt.show()
 plt.close()
 
-# plot heading vs time (want to check to see if there is an inflection / negative sign I'm messing up somewhere)
+# plot heading vs time (to check if there is an inflection / negative sign missing somewhere)
 plt.figure('Heading vs Time')
 plt.subplot(111)
-plt.plot(estimated.t, estimated.theta, color='b', label="Filtered Theta")
-plt.plot(groundtruth.t, groundtruth.theta, color='g', label="Groundtruth Theta")
-plt.plot(measured.t, measured.theta, color='y', marker='.', label="Measured Theta")
+plt.plot([p.t for p in deadrec_data], [p.theta for p in deadrec_data], color='r', label="Deadrec Theta")
+plt.plot([p.t for p in estimated], [p.theta for p in estimated], color='b', label="Filtered Theta")
+plt.plot([p.t for p in groundtruth], [p.theta for p in groundtruth], color='g', label="Groundtruth Theta")
 plt.title('Theta vs Time')
 plt.xlabel('time [s]')
 plt.ylabel('theta [radians]')
@@ -329,13 +353,6 @@ plt.close()
 # plt.show()
 
 
-# CLEANUP
-# odometry_file.close()
-# measurement_file.close()
-# groundtruth_file.close()
-# landmark_file.close()
-# barcode_file.close()
-# debug_file.close()
 print "DONE"
 
 
