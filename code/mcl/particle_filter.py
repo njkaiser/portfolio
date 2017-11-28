@@ -27,13 +27,7 @@ class particle_filter():
     def update_pose(self, u):
         '''calculate updated pose for each particle'''
         self.chi = motion_model(u, self.chi, add_noise=True)
-
-        # TODO: probaby a better way to wrap angles here...
-        for index, theta in enumerate(self.chi[:, 2]):
-            if theta > np.pi: # ensure heading angle is between -pi and pi
-                self.chi[index, 2] = theta - 2 * np.pi
-            elif theta < -np.pi:
-                self.chi[index, 2]  = theta + 2 * np.pi
+        self.chi[:, 2] = (self.chi[:, 2] + np.pi) % (2 * np.pi) - np.pi # angle wrapping to [-pi, pi)
         return self.chi
 
 
@@ -46,7 +40,14 @@ class particle_filter():
             return 0 # measurement was to a robot, not a landmark
 
         self.w = measurement_model(self.chi, z, LM)
+
         self.w /= sum(self.w) # normalize TODO: is this necessary? maybe since we draw with probability and that can't be over 1?
+        # print sum(self.w)
+        # # this check is necessary for ds0 since bearing weights start as 0 for some reason?
+        # if sum(self.w) == 0:
+        #     self.w = np.ones(nparticles) / float(nparticles)
+        # else:
+        #     self.w /= sum(self.w) # normalize TODO: is this necessary? maybe since we draw with probability and that can't be over 1?
 
         # particles far from a measurement will give us 0.0 for a probability
         # due to floating point limits. Once we hit zero we can never recover,
@@ -68,25 +69,18 @@ class particle_filter():
 
 
     def resample(self):
-        # weight should only be p(z_t | x_t) * w_t-1 (equation 4.37, if no resampling took place
+        '''draw samples from particle set according to weights,
+        replace original set w/ chosen samples'''
         # NEVER RESAMPLE IF NO CONTROL STEP (i.e. x_t = x_t-1)
-        # draw samples from particle set according to weights, repopulate set w/ chosen samples
-        # particle = np.zeros((nparticles, 3))
-        # weight = np.zeros(nparticles)
+        # weight should only be p(z_t | x_t) * w_t-1 (equation 4.37) if no resampling took place
 
-        # self.w = weight / np.sum(weight)
-        idxs = np.random.choice(nparticles, nparticles, replace=True, p=self.w)
+        try:
+            idxs = np.random.choice(nparticles, nparticles, replace=True, p=self.w)
+        except ValueError:
+            print self.w
+            assert False
         self.chi = self.chi[idxs, :]
-
-        # for m in range(nparticles):
-        #     index = np.random.choice(nparticles, replace=True, p=self.w)
-        #     particle[m] = self.chi[index, 0:3]
-        #     weight[m] = self.w[index]
-        #
-        # self.chi = particle
-        # print "filter.py line 128, last particle =", self.chi[-1]
-
-        return self.w
+        return self.w # just for debug purposes
 
 
     def extract(self):

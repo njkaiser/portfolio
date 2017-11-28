@@ -21,15 +21,6 @@ def calc_expected_measurement(pose, lm):
     return r_expected, b_expected
 
 
-# def calc_expected_pose(z, lm):
-#     '''calculates expected pose given measurement data and a landmark'''
-#
-#     theta_expected =
-#     x_expected = lm.x - z.r * np.cos(z.theta) +
-#
-#     return Pose(x_expected, y_expected, theta_expected)
-
-
 def measurement_model(pose, z, LM, add_noise=False):
     ''' calculates probability of robot pose based given measurement (similar
     to landmark_model_known_correspondence from Probabilistic Robotics)'''
@@ -37,8 +28,35 @@ def measurement_model(pose, z, LM, add_noise=False):
     lm = LM[z.s] # subject (landmark ID)
     r_expected, b_expected = calc_expected_measurement(pose, lm)
     r_prob = norm(r_expected, z_noise.r_rel * r_expected + z_noise.r_abs).pdf(z.r)# + min_prob
-    b_prob = norm(b_expected, z_noise.b_abs).pdf(z.b)# + min_prob
-    return r_prob * b_prob
+    # print "r_prob", np.sum(r_prob)
+    # if np.isnan(np.sum(r_prob)) or np.isinf(np.sum(r_prob)):
+    #     print "r_expected, z.r:", r_expected, z.r
+    if np.sum(r_prob) == 0:
+        # print "b_prob:\n", b_prob
+        # print "b_expected, z.b:", b_expected, z.b
+        # print "np.cos(b_expected), np.cos(z.b):", np.cos(b_expected), np.cos(z.b)
+        return np.ones_like(r_prob)
+
+    b_prob = norm(np.cos(b_expected), z_noise.b_abs).pdf(np.cos(z.b))# + min_prob
+    # print "b_prob", np.sum(b_prob)
+
+    # erronous measurement data can crash code if all weights are zero:
+    if np.sum(b_prob) == 0:
+        # print "b_prob:\n", b_prob
+        # print "b_expected, z.b:", b_expected, z.b
+        # print "np.cos(b_expected), np.cos(z.b):", np.cos(b_expected), np.cos(z.b)
+        return np.ones_like(b_prob)
+    # if np.isnan(np.sum(b_prob)) or np.isinf(np.sum(b_prob)):
+
+        # print b_expected
+        # print z.b
+    # print r_prob
+    # print b_prob
+    output = r_prob * b_prob
+    if np.sum(output) == 0:
+        return np.ones_like(b_prob)
+
+    return output
 
 
 

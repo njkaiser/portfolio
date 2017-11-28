@@ -3,8 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from math import sqrt
-
-# project includes
+from time import time
 from control import motion_model
 from fileinit import parse_odometry, parse_measurement, parse_groundtruth, parse_landmarks
 from measure import measurement_model, calc_expected_measurement
@@ -12,6 +11,11 @@ from plot import PathTrace, plot_particles
 from params import N, test_file_name
 from definitions import Control, ControlStamped, Pose, PoseStamped, Measurement, MeasurementStamped
 from particle_filter import particle_filter
+try:
+    from tqdm import tqdm
+except ImportError:
+    print "consider installing tqdm, ya fool (sudo pip install tqdm)"
+    tqdm = lambda iterator, **kwargs: iterator
 # import debug
 
 
@@ -89,6 +93,8 @@ from particle_filter import particle_filter
 #### START MAIN LOOP #####
 ##########################
 
+start = time()
+
 # TODO: remove extraneous stuff:
 # debug_file = open("debug.txt", "w")
 # measurement_error = []
@@ -104,7 +110,6 @@ Z = parse_measurement() # measurement data
 GT = parse_groundtruth() # groundtruth data
 LM = parse_landmarks() # landmark data
 N = min(len(U), N) # truncate max # iterations if > length of data
-print "total number of control iterations:", N
 
 # containers for storing data for plotting later
 deadrec_data = [GT[0]] # begin fully localized
@@ -125,7 +130,13 @@ j, k, m = 0, 0, 0 # various indices
 distance_cum = 0
 angle_cum = 0
 
-for i in xrange(N):
+end = time()
+print "setup time:", end - start
+
+start = time()
+print "running main loop for", N, "iterations..."
+# for i in xrange(N):
+for i in tqdm(xrange(N)):
     # use the contoller model to dead reckon our pose
     pose = motion_model(U[i], pose)
     deadrec_data.append(pose) # collect these points for plotting later
@@ -148,7 +159,7 @@ for i in xrange(N):
         # print "dist/angle:", distance_cum, angle_cum
 
         if j == len(Z) - 1: # there's no more measurement data to use, exit loop
-            raise Exception("I shouldn't be here until the very end?")
+            # raise Exception("I shouldn't be here until the very end?")
             break
 
         j += 1 # increment to next measurement
@@ -177,49 +188,53 @@ for i in xrange(N):
         # heading_error.append(position[3]-true_pose[3])
 
     # DEBUG
-    try:
-        expected_measurements.append(calc_expected_measurement(GT[m], LM[Z[j].s]))
-        measurements.append(Z[j])
-    except KeyError:
-        print "why am I broken?", Z[j].s
-        for key in LM:
-            print key, LM[key]
-        assert False
+    if j != len(Z) - 1: # there's no more measurement data to use, exit loop
 
-    if distance_cum > 0.01 or angle_cum > 0.01: # only filter if we've moved, otherwise we'll have particle variance issues
-        # print "moved"
-        # check if measurement is to a valid landmark before trying to use it...
-        if not PF.update_weights(Z[j], LM): # update weights based on measurement
-            continue
+        try:
+            lol = calc_expected_measurement(GT[m], LM[Z[j].s])
+            expected_measurements.append(MeasurementStamped(Z[j].t, Z[j].s, lol[0], lol[1]))
+            measurements.append(Z[j])
+        except KeyError:
+            # print "why am I broken?", Z[j].s
+            # for key in LM:
+            #     print key, LM[key]
+            # assert False
+            pass
 
-        w_trblsht = PF.resample() # resample
-        mu, var = PF.extract() # extract our belief from the particle set
-        mu = PoseStamped(U[i].t, *mu) # prepend time for easy plotting later
+        if distance_cum > 0.01 or angle_cum > 0.01: # only filter if we've moved, otherwise we'll have particle variance issues
+            # print "moved"
+            # check if measurement is to a valid landmark before trying to use it...
+            if not PF.update_weights(Z[j], LM): # update weights based on measurement
+                continue
+
+            w_trblsht = PF.resample() # resample
+            mu, var = PF.extract() # extract our belief from the particle set
+            mu = PoseStamped(U[i].t, *mu) # prepend time for easy plotting later
 
 
 
-        estimated.append(mu) # collect these points for plotting later
+            estimated.append(mu) # collect these points for plotting later
 
-        distance_cum = 0 # reset to 0 for the next loop
-        angle_cum = 0 # reset to 0 for the next loop
+            distance_cum = 0 # reset to 0 for the next loop
+            angle_cum = 0 # reset to 0 for the next loop
 
-        # THIS SECTION PLOTS HISTOGRAMS FOR PARTICLE VALUES AND WEIGHTS EVERY 100 ITERATIONS
-        # IT'S NOT PART OF THE MAIN CODE, JUST TO HELP WITH DEBUGGING
-        # if i >= 100 * k:
-        #     # print "  ITER #:", i
-        #     # print "PARTICLE:", np.average(chi_trblsht, axis=0), chi_trblsht.min(), chi_trblsht.max()
-        #     # print "  WEIGHT:", np.average(w_trblsht, axis=0), w_trblsht.min(), w_trblsht.max()
-        #
-        #     # troubleshooting
-        #     plt.figure(i)
-        #     plt.hist(w_trblsht*1000, bins=20, alpha=0.5, color='r', label='weight (*10^3)')#, range=[0,0.01])
-        #     plt.hist(chi_trblsht[:, 0], bins=20, alpha=0.5, color='b', label='particle x')#, range=[0.5,1.5])
-        #     plt.hist(chi_trblsht[:, 1], bins=20, alpha=0.5, color='g', label='particle y')
-        #     plt.hist(chi_trblsht[:, 2], bins=20, alpha=0.5, color='m', label='particle theta')
-        #     plt.legend(loc='upper left')
-        #     plt.show()
-        #     plt.close()
-        #     k += 1
+            # THIS SECTION PLOTS HISTOGRAMS FOR PARTICLE VALUES AND WEIGHTS EVERY 100 ITERATIONS
+            # IT'S NOT PART OF THE MAIN CODE, JUST TO HELP WITH DEBUGGING
+            # if i >= 100 * k:
+            #     # print "  ITER #:", i
+            #     # print "PARTICLE:", np.average(chi_trblsht, axis=0), chi_trblsht.min(), chi_trblsht.max()
+            #     # print "  WEIGHT:", np.average(w_trblsht, axis=0), w_trblsht.min(), w_trblsht.max()
+            #
+            #     # troubleshooting
+            #     plt.figure(i)
+            #     plt.hist(w_trblsht*1000, bins=20, alpha=0.5, color='r', label='weight (*10^3)')#, range=[0,0.01])
+            #     plt.hist(chi_trblsht[:, 0], bins=20, alpha=0.5, color='b', label='particle x')#, range=[0.5,1.5])
+            #     plt.hist(chi_trblsht[:, 1], bins=20, alpha=0.5, color='g', label='particle y')
+            #     plt.hist(chi_trblsht[:, 2], bins=20, alpha=0.5, color='m', label='particle theta')
+            #     plt.legend(loc='upper left')
+            #     plt.show()
+            #     plt.close()
+            #     k += 1
 
 
     # these 2 lines just allow me to print the iteration # without taking a lot of space in the terminal window
@@ -241,13 +256,16 @@ for i in xrange(N):
     #     plt.show()
 
     if i%100 == 0:
-        print "main loop iteration", i
+        # print "main loop iteration", i
         particles = np.vstack((particles, PF.chi))
         # print "m, i, len(GT), len(U):", m, i, len(GT), len(U)
         # print "particles.shape:", particles.shape
 
 
 
+
+end = time()
+print "elapsed time for main loop:", end - start
 
 ###########################
 ###### END MAIN LOOP ######
@@ -257,7 +275,7 @@ for i in xrange(N):
 # PLOTTING AND DATA OUTPUT
 # print out # of data points in each plotted dataset, for knowledge
 print "deadrec plot data has ", len(deadrec_data), " elements"
-print "measurement plot data has ", len(measurements), " elements"
+print "measurement plot data has ", len(measurements), " elements (", len(expected_measurements), ")"
 print "groundtruth plot data has ", len(groundtruth), " elements"
 print "filtered plot data has ", len(estimated), " elements"
 
@@ -276,13 +294,42 @@ plt.show()
 # assert False
 
 
-# plot x position vs time, with measurement data
+# # plot measurement range data vs time
+# plt.figure('range measurements vs time')
+# plt.subplot(111)
+# plt.scatter([z.t for z in measurements], [z.r for z in measurements], color='b', label="Measurement Actual Range")
+# plt.scatter([z.t for z in expected_measurements], [z.r for z in expected_measurements], color='g', label="Groundtruth Expected Range")
+# # plt.plot([p.t for p in deadrec_data], [p.x for p in deadrec_data], color='b', label="Actual Measurement")
+# # plt.plot([p.t for p in estimated], [p.x for p in estimated], color='g', label="Groundtruth Measurement")
+# # plt.title('x-position vs Time')
+# plt.xlabel('time [s]')
+# plt.ylabel('position [m]')
+# plt.legend()
+# plt.show()
+# plt.close()
+#
+#
+# # plot measurement range data vs time
+# plt.figure('bearing measurements vs time')
+# plt.subplot(111)
+# plt.scatter([z.t for z in measurements], [z.b for z in measurements], color='b', label="Measurement Actual Range")
+# plt.scatter([z.t for z in expected_measurements], [z.b for z in expected_measurements], color='g', label="Groundtruth Expected Range")
+# # plt.plot([p.t for p in deadrec_data], [p.x for p in deadrec_data], color='b', label="Actual Measurement")
+# # plt.plot([p.t for p in estimated], [p.x for p in estimated], color='g', label="Groundtruth Measurement")
+# # plt.title('x-position vs Time')
+# plt.xlabel('time [s]')
+# plt.ylabel('position [m]')
+# plt.legend()
+# plt.show()
+# plt.close()
+
+
+# plot x position vs time
 plt.figure('x-position vs Time')
 plt.subplot(111)
 plt.plot([p.t for p in deadrec_data], [p.x for p in deadrec_data], color='r', label="Deadrec X")
 plt.plot([p.t for p in estimated], [p.x for p in estimated], color='b', label="Filtered X")
 plt.plot([p.t for p in groundtruth], [p.x for p in groundtruth], color='g', label="Groundtruth X")
-plt.plot([z.t for z in measurements], [z.x for z in groundtruth], color='g', label="Groundtruth X")
 plt.title('x-position vs Time')
 plt.xlabel('time [s]')
 plt.ylabel('position [m]')
@@ -290,7 +337,7 @@ plt.legend()
 plt.show()
 plt.close()
 
-# plot y position vs time, with measurement data
+# plot y position vs time
 plt.figure('y-position vs Time')
 plt.subplot(111)
 plt.plot([p.t for p in deadrec_data], [p.y for p in deadrec_data], color='r', label="Deadrec Y")
@@ -306,9 +353,12 @@ plt.close()
 # plot heading vs time (to check if there is an inflection / negative sign missing somewhere)
 plt.figure('Heading vs Time')
 plt.subplot(111)
-plt.plot([p.t for p in deadrec_data], [p.theta for p in deadrec_data], color='r', label="Deadrec Theta")
+plt.plot([p.t for p in deadrec_data], [(p.theta+np.pi)%(2*np.pi)-np.pi for p in deadrec_data], color='r', label="Deadrec Theta")
+# plt.plot([p.t for p in deadrec_data], [p.theta for p in deadrec_data], color='r', label="Deadrec Theta")
 plt.plot([p.t for p in estimated], [p.theta for p in estimated], color='b', label="Filtered Theta")
+# plt.plot([p.t for p in estimated], [(p.theta+np.pi)%(2*np.pi)-np.pi for p in estimated], color='y', label="TEST")
 plt.plot([p.t for p in groundtruth], [p.theta for p in groundtruth], color='g', label="Groundtruth Theta")
+
 plt.title('Theta vs Time')
 plt.xlabel('time [s]')
 plt.ylabel('theta [radians]')

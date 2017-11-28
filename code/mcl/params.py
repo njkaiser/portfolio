@@ -12,7 +12,7 @@ barcode_file_name = dataset + '/' + dataset + '_Barcodes.dat'
 
 
 ### MAIN PROGRAM OPTIONS:
-N = 2500 # clip data for quicker development
+N = 25000 # clip data for quicker development
 
 
 ### FILTER PARAMETERS:
@@ -35,7 +35,7 @@ class z_noise(object):
     r_rel = 0.10 # range noise (relative) in percent (0.01 = 1%)
     r_abs = 0.05 # range noise (absolute) in meters
     # b_rel = 0.10 # bearing noise (relative) in percent (0.01 = 1%)
-    b_abs = 0.20 # bearing noise (absolute) in radians
+    b_abs = 0.02 # bearing noise - unitless since using cosine comparison
 
 
 
