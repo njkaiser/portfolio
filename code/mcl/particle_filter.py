@@ -24,14 +24,14 @@ class particle_filter():
         self.w = np.ones(nparticles) / float(nparticles)
 
 
-    def update_pose(self, u):
+    def motion_update(self, u):
         '''calculate updated pose for each particle'''
         self.chi = motion_model(u, self.chi, add_noise=True)
         self.chi[:, 2] = (self.chi[:, 2] + np.pi) % (2 * np.pi) - np.pi # angle wrapping to [-pi, pi)
         return self.chi
 
 
-    def update_weights(self, z, LM):
+    def measurement_update(self, z, LM):
         '''update weights given measurement data to an observed landmark'''
 
         try:
@@ -39,20 +39,15 @@ class particle_filter():
         except:
             return 0 # measurement was to a robot, not a landmark
 
+        # update particle weights based on measurement data
         self.w = measurement_model(self.chi, z, LM)
-
-        self.w /= sum(self.w) # normalize TODO: is this necessary? maybe since we draw with probability and that can't be over 1?
-        # print sum(self.w)
-        # # this check is necessary for ds0 since bearing weights start as 0 for some reason?
-        # if sum(self.w) == 0:
-        #     self.w = np.ones(nparticles) / float(nparticles)
-        # else:
-        #     self.w /= sum(self.w) # normalize TODO: is this necessary? maybe since we draw with probability and that can't be over 1?
+        self.w /= sum(self.w)
 
         # particles far from a measurement will give us 0.0 for a probability
         # due to floating point limits. Once we hit zero we can never recover,
         # so add some small nonzero value to all points.
         # overall_prob += 1.e-6
+
 # WAS THIS LINE CAUSING ME PROBLEMS? SHOULDN'T IT BE =, NOT +=?
         # self.w += overall_prob
         # self.w = overall_prob
@@ -63,7 +58,7 @@ class particle_filter():
         #
         # if w_var < 10e-10:
         #     self.recondition()
-            # self.update_weights(pose) # RECURSIVE, MAKE SURE THIS IS CALLED CORRECTLY
+            # self.measurement_update(pose) # RECURSIVE, MAKE SURE THIS IS CALLED CORRECTLY
 
         return 1
 
@@ -71,7 +66,7 @@ class particle_filter():
     def resample(self):
         '''draw samples from particle set according to weights,
         replace original set w/ chosen samples'''
-        # NEVER RESAMPLE IF NO CONTROL STEP (i.e. x_t = x_t-1)
+        # DON'T RESAMPLE IF NO CONTROL STEP (i.e. x_t = x_t-1)
         # weight should only be p(z_t | x_t) * w_t-1 (equation 4.37) if no resampling took place
 
         try:
@@ -84,38 +79,37 @@ class particle_filter():
 
 
     def extract(self):
-        chi_temp = self.chi[:]
         mu = np.average(self.chi, weights=self.w, axis=0)
-        var = np.average((chi_temp - mu)**2, weights=self.w, axis=0)
+        var = np.average((self.chi - mu)**2, weights=self.w, axis=0)
         return mu, var
 
 
-    def recondition(self):
-        # create some new, random particles (~10% of population), to help fix particle deprivation problem
-        # ONLY USE THIS AS A LAST RESORT IF WE LOSE WEIGHT VARIANCE
-
-        # if particle variance < certain value, then:
-        # 1) multiply x and y components by some scalar to spread them out (centered about the mean)
-        # 2) add in completely random particles
-        # 3) add in particles around the measurement data
-
-        # 1)
-        mu = np.average(self.chi[:, 0:3], weights=self.w, axis=0)
-        var = np.average((self.chi - mu)**2, weights=self.w, axis=0)
-        spread = np.subtract(self.chi, mu)
-        spread *= 5
-        self.chi = np.add(spread, mu)
-
-        # 2)
-        # for i in range(0, nparticles, nparticles/10): # step through the set and replace every 10th particle w/ new, random value
-        #     index = np.random.choice(nparticles, replace=True, p=self.w)
-        #     self.chi[index, 0:3] = mu * np.random.normal(1, 1.5)
-
-        # 3)
-        # neither 1 nor 2 helped, skipping 3 since I don't have much time and it's not robust
-
-        print "ENTERED RECONDITION STEP"
-        return
+    # def recondition(self):
+    #     # create some new, random particles (~10% of population), to help fix particle deprivation problem
+    #     # ONLY USE THIS AS A LAST RESORT IF WE LOSE WEIGHT VARIANCE
+    #
+    #     # if particle variance < certain value, then:
+    #     # 1) multiply x and y components by some scalar to spread them out (centered about the mean)
+    #     # 2) add in completely random particles
+    #     # 3) add in particles around the measurement data
+    #
+    #     # 1)
+    #     mu = np.average(self.chi[:, 0:3], weights=self.w, axis=0)
+    #     var = np.average((self.chi - mu)**2, weights=self.w, axis=0)
+    #     spread = np.subtract(self.chi, mu)
+    #     spread *= 5
+    #     self.chi = np.add(spread, mu)
+    #
+    #     # 2)
+    #     # for i in range(0, nparticles, nparticles/10): # step through the set and replace every 10th particle w/ new, random value
+    #     #     index = np.random.choice(nparticles, replace=True, p=self.w)
+    #     #     self.chi[index, 0:3] = mu * np.random.normal(1, 1.5)
+    #
+    #     # 3)
+    #     # neither 1 nor 2 helped, skipping 3 since I don't have much time and it's not robust
+    #
+    #     print "ENTERED RECONDITION STEP"
+    #     return
 
 
 if __name__ == '__main__':

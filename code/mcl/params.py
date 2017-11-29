@@ -12,7 +12,7 @@ barcode_file_name = dataset + '/' + dataset + '_Barcodes.dat'
 
 
 ### MAIN PROGRAM OPTIONS:
-N = 25000 # clip data for quicker development
+N = 100000 # clip data for quicker development
 
 
 ### FILTER PARAMETERS:
@@ -25,12 +25,12 @@ class u_noise(object):
     x_abs = 0.005 # x noise (absolute) in meters
     y_rel = 0.001 # y noise should mostly come from theta noise, since robot can't move sideways
     y_abs = 0.005 # y noise (absolute) in meters
-    theta_rel = 0.100 # heading noise (relative) in percent (0.01 = 1%)
-    theta_abs = 0.010 # heading noise (absolute) in radians
+    theta_rel = 0.200 # heading noise (relative) in percent (0.01 = 1%)
+    theta_abs = 0.020 # heading noise (absolute) in radians
 
 
 ### MEASUREMENT MODEL PARAMETERS:
-min_prob = 1e-12 # prevents NaNs and particle deprivation if prob = 0 due to floating point limits
+# min_prob = 1e-12 # prevents NaNs and particle deprivation if prob = 0 due to floating point limits
 class z_noise(object):
     r_rel = 0.10 # range noise (relative) in percent (0.01 = 1%)
     r_abs = 0.05 # range noise (absolute) in meters
