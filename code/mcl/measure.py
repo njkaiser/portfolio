@@ -4,7 +4,6 @@ import numpy as np
 from definitions import Pose, PoseStamped, MeasurementStamped
 from scipy.stats import norm
 from params import z_noise#, min_prob
-# from math import isnan
 
 
 def calc_expected_measurement(pose, lm):
@@ -28,7 +27,10 @@ def measurement_model(pose, z, LM, add_noise=False):
     lm = LM[z.s] # select correct subject (landmark ID)
     r_expected, b_expected = calc_expected_measurement(pose, lm)
     r_prob = norm(r_expected, z_noise.r_rel * r_expected + z_noise.r_abs).pdf(z.r)# + min_prob
-    b_prob = norm(np.cos(b_expected), z_noise.b_abs).pdf(np.cos(z.b))# + min_prob
+    # THIS IS NOT AN ACTUAL GAUSSIAN, BUT COMPUTES FASTER
+    # b_prob = norm(np.cos(b_expected), z_noise.b_abs).pdf(np.cos(z.b))# + min_prob
+    # THIS IS AN ACTUAL GAUSSIAN, BUT TAKES LONGER TO COMPUTE
+    b_prob = norm(0, z_noise.b_abs).pdf(np.arccos(np.cos(b_expected)*np.cos(z.b)+np.sin(b_expected)*np.sin(z.b)))# + min_prob
     output = r_prob * b_prob
 
     # need to protect against a weight array of all zeros
@@ -60,8 +62,8 @@ if __name__ == '__main__':
         x_axis.append(x)
         prob_graph.append(prob)
 
-    print prob_graph
-    print len(prob_graph)
+    # print prob_graph
+    # print len(prob_graph)
     plt.plot(x_axis, prob_graph)
     # plt.plot(x_axis[0:150], prob_graph[0:150])
     # blah = list(reversed(prob_graph[150:]))
@@ -84,8 +86,8 @@ if __name__ == '__main__':
         x_axis.append(theta)
         prob_graph.append(prob)
 
-    print prob_graph
-    print len(prob_graph)
+    # print prob_graph
+    # print len(prob_graph)
     plt.plot(x_axis, prob_graph)
     # plt.plot(x_axis[0:150], prob_graph[0:150])
     # blah = list(reversed(prob_graph[150:]))

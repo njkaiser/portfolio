@@ -2,8 +2,7 @@
 
 
 ### FILENAMES:
-dataset = 'ds1' # choices are ds0 or ds1
-test_file_name = 'particle_test_spiral.dat'
+dataset = 'ds0' # choices are ds0 or ds1
 odometry_file_name = dataset + '/' + dataset + '_Odometry.dat'
 measurement_file_name = dataset + '/' + dataset + '_Measurement.dat'
 groundtruth_file_name = dataset + '/' + dataset + '_Groundtruth.dat'
@@ -12,7 +11,7 @@ barcode_file_name = dataset + '/' + dataset + '_Barcodes.dat'
 
 
 ### MAIN PROGRAM OPTIONS:
-N = 100000 # clip data for quicker development
+N = 100 # clip data for quicker development
 
 
 ### FILTER PARAMETERS:
@@ -35,7 +34,7 @@ class z_noise(object):
     r_rel = 0.10 # range noise (relative) in percent (0.01 = 1%)
     r_abs = 0.05 # range noise (absolute) in meters
     # b_rel = 0.10 # bearing noise (relative) in percent (0.01 = 1%)
-    b_abs = 0.02 # bearing noise - unitless since using cosine comparison
+    b_abs = 0.2 # bearing noise - unitless since using cosine comparison
 
 
 
