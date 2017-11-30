@@ -29,13 +29,16 @@ class u_noise(object):
 
 
 ### MEASUREMENT MODEL PARAMETERS:
-# min_prob = 1e-12 # prevents NaNs and particle deprivation if prob = 0 due to floating point limits
 class z_noise(object):
     r_rel = 0.10 # range noise (relative) in percent (0.01 = 1%)
     r_abs = 0.05 # range noise (absolute) in meters
     # b_rel = 0.10 # bearing noise (relative) in percent (0.01 = 1%)
     b_abs = 0.2 # bearing noise - unitless since using cosine comparison
 
+# particles far from a measurement will give us 0.0 for a probability
+# due to floating point limits. Once we hit zero we can never recover,
+# so add some small nonzero value to all points.
+min_prob = 1e-12 # prevents NaNs and particle deprivation if prob = 0
 
 
 if __name__ == '__main__':

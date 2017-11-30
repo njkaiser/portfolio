@@ -65,51 +65,45 @@ for i in tqdm(xrange(N)):
     ##### MOTION UPDATE #####
     deadrec_pose = motion_model(U[i], deadrec_pose)
     PF.motion_update(U[i])
-    # if i%4 == 0:# and i > 550:
-    #     particles = np.vstack((particles, PF.chi))
     mu, var = PF.extract() # extract our belief from the particle set
-
-    filtered_path.append(PoseStamped(U[i].t, *mu)) # collect these points for plotting later
-    deadrecd_path.append(deadrec_pose) # collect these points for plotting later
-
-    distance_sum += sqrt((deadrecd_path[-1].x - deadrecd_path[-2].x)**2 + (deadrecd_path[-1].y - deadrecd_path[-2].y)**2) # running sum of linear disance traveled
-    angle_sum += abs(deadrecd_path[-1].x - deadrecd_path[-2].x) # running sum of angular disance traveled
-
-    if i%5 == 0: particles = np.vstack((particles, PF.chi));
 
     # determine which groundtruth data point is closest to our control point
     while GT[j].t <= U[i].t: j += 1;
+
+    # store corresponding data points for later comparison
     groundtruth_path.append(GT[j])
+    filtered_path.append(PoseStamped(U[i].t, *mu)) # store for plotting later
+    deadrecd_path.append(deadrec_pose) # store for plotting later
 
-    # run this portion if we have a measurement to incorporate
-    while Z[k].t <= U[i].t: # incorporate measurements up to the current control step's time
-        if k == len(Z) - 1: break; # there's no more measurement data to use, exit loop
-        k += 1 # increment to next measurement
+    # calculate linear/angular distance traveled (only filter if distance traveled > threshold)
+    distance_sum += sqrt((deadrecd_path[-1].x - deadrecd_path[-2].x)**2 + (deadrecd_path[-1].y - deadrecd_path[-2].y)**2) # running sum of linear disance traveled
+    angle_sum += abs(deadrecd_path[-1].x - deadrecd_path[-2].x) # running sum of angular distance traveled
 
+    # DEBUG
+    if i%5 == 0: particles = np.vstack((particles, PF.chi));
+
+    # DEBUG
+    # if i%4 == 0:# and i > 550:
+    #     particles = np.vstack((particles, PF.chi))
+
+    # incorporate measurements up to the current control step's time
+    while Z[k].t <= U[i].t and k < len(Z) - 1: k += 1;
+    if k >= len(Z) - 1: continue; # there's no more measurement data to process, skip rest of loop
+
+    # DEBUG:
+    try:
+        dbg = calc_expected_measurement(GT[j], LM[Z[k].s])
+        expected_measurements.append(MeasurementStamped(Z[k].t, Z[k].s, dbg[0], dbg[1]))
+        measurements.append(Z[k])
+    except KeyError:
+        pass
 
     ##### MEASUREMENT UPDATE #####
-    if k != len(Z) - 1: # there's still measurement data to process
-
-        # DEBUG ONLY:
-        try:
-            dbg = calc_expected_measurement(GT[j], LM[Z[k].s])
-            expected_measurements.append(MeasurementStamped(Z[k].t, Z[k].s, dbg[0], dbg[1]))
-            measurements.append(Z[k])
-        except KeyError:
-            # print "why am I broken?", Z[k].s
-            # for key in LM:
-            #     print key, LM[key]
-            # assert False
-            pass
-
-        if distance_sum > 0.01 or angle_sum > 0.01: # only filter if we've moved, otherwise we might have particle variance issues
-            # check if measurement is to a valid landmark before trying to use it...
-            if not PF.measurement_update(Z[k], LM): # update weights based on measurement
-                continue
-            else:
-                w_trblsht = PF.resample() # resample
-                distance_sum = 0 # reset to 0 for the next loop
-                angle_sum = 0 # reset to 0 for the next loop
+    if distance_sum > 0.01 or angle_sum > 0.01: # only filter if we've moved (otherwise particle variance issues)
+        if PF.measurement_update(Z[k], LM): # update weights based on measurement
+            PF.resample() # only resample if measurement is to a valid landmark
+            distance_sum = 0 # reset to 0 once we've incorporated a measurement
+            angle_sum = 0 # reset to 0 once we've incorporated a measurement
 
 
     # particles = np.vstack((particles, PF.chi))

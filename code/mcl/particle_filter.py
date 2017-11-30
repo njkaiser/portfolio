@@ -34,23 +34,12 @@ class particle_filter():
     def measurement_update(self, z, LM):
         '''update weights given measurement data to an observed landmark'''
 
-        try:
-            lm = LM[z.s]
-        except:
-            return 0 # measurement was to a robot, not a landmark
+        try: lm = LM[z.s];
+        except: return 0; # measurement was to a robot, not a landmark
 
         # update particle weights based on measurement data
         self.w = measurement_model(self.chi, z, LM)
         self.w /= sum(self.w)
-
-        # particles far from a measurement will give us 0.0 for a probability
-        # due to floating point limits. Once we hit zero we can never recover,
-        # so add some small nonzero value to all points.
-        # overall_prob += 1.e-6
-
-# WAS THIS LINE CAUSING ME PROBLEMS? SHOULDN'T IT BE =, NOT +=?
-        # self.w += overall_prob
-        # self.w = overall_prob
 
         # determine if we should do a particle reconditioning step
         # w_var = np.average((self.w - np.average(self.w))**2)
