@@ -17,7 +17,7 @@ def PathTrace(data, plotname, hold, color, label):
         plt.show()
 
 
-def plot_particles(fig, ax, particles):
+def plot_particles(fig, ax, particles, weights=0):
     '''plot particles (represented by arrows)'''
     fig, ax = fig, ax # TODO do I need this?
 
@@ -32,9 +32,15 @@ def plot_particles(fig, ax, particles):
     U = U / np.sqrt(U**2 + V**2);
     V = V / np.sqrt(U**2 + V**2);
 
+    # if isinstance(weights, np.ndarray):
+    #     C = weights # we'll use a Yellow-Green-Blue colormap to represent particle weights
+    # else:
+    #     C = np.linspace(0, 255, len(X)) # taste the rainbow
     C = np.linspace(0, 255, len(X)) # taste the rainbow
+
     # S = ax.scatter(X, Y, c=C, marker='.')
     Q = ax.quiver(X, Y, U, V, C, angles='xy', scale_units='xy', scale=20, width=0.001, headwidth=4, label='Particles')
+    # Q = ax.quiver(X, Y, U, V, C, cmap='YlGnBu', angles='xy', scale_units='xy', scale=20, width=0.001, headwidth=4, label='Particles')
 
     # plt.axis('equal')
     # plt.axis([-0.1, 1.6, -1.6, 0.1])

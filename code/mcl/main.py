@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 # from matplotlib import animation
 from math import sqrt
-from time import time#, sleep
+from time import time
 from control import motion_model
 from fileinit import parse_odometry, parse_measurement, parse_groundtruth, parse_landmarks
 from measure import measurement_model, calc_expected_measurement
@@ -39,6 +39,7 @@ deadrecd_path = [GT[0]] # begin fully localized
 filtered_path = [GT[0]] # begin fully localized
 groundtruth_path = [GT[0]]
 particles = PF.chi # seed with initial particle set
+weights = PF.w # seed with initial particle weights
 
 # STUFF FOR DEBUGGING
 measurements = []
@@ -47,6 +48,7 @@ expected_measurements = []
 j, k = 0, 0 # various indices
 distance_sum = 0
 angle_sum = 0
+imin = next(u[0] for u in enumerate(U) if u[1].t > Z[0].t) - 1 # otherwise we might incorporate first measurement multiple times
 
 end = time()
 print "setup time:", end - start
@@ -80,15 +82,20 @@ for i in tqdm(xrange(N)):
     angle_sum += abs(deadrecd_path[-1].x - deadrecd_path[-2].x) # running sum of angular distance traveled
 
     # DEBUG
-    if i%5 == 0: particles = np.vstack((particles, PF.chi));
+    if i%10 == 0:
+        particles = np.vstack((particles, PF.chi));
+        weights = np.vstack((weights, PF.w));
 
     # DEBUG
     # if i%4 == 0:# and i > 550:
     #     particles = np.vstack((particles, PF.chi))
+    #     weights = np.vstack((weights, PF.w))
 
     # incorporate measurements up to the current control step's time
     while Z[k].t <= U[i].t and k < len(Z) - 1: k += 1;
-    if k >= len(Z) - 1: continue; # there's no more measurement data to process, skip rest of loop
+    if k >= len(Z) - 1: continue; # there's no more measurement data to process or the first measurement hasn't come yet, skip rest of loop
+    #  or Z[k].t > U[i].t
+    #  or i < imin
 
     # DEBUG:
     try:
@@ -99,11 +106,14 @@ for i in tqdm(xrange(N)):
         pass
 
     ##### MEASUREMENT UPDATE #####
+    # if 1:
     if distance_sum > 0.01 or angle_sum > 0.01: # only filter if we've moved (otherwise particle variance issues)
         if PF.measurement_update(Z[k], LM): # update weights based on measurement
+            print "i, j, k:", i, j, k
             PF.resample() # only resample if measurement is to a valid landmark
             distance_sum = 0 # reset to 0 once we've incorporated a measurement
             angle_sum = 0 # reset to 0 once we've incorporated a measurement
+            k += 1 # prevents us from using the same measurement multiple times
 
 
     # particles = np.vstack((particles, PF.chi))
@@ -187,8 +197,10 @@ plotname = 'HW0, Part A, #3 -Simulated Controller vs Ground Truth Data'
 PathTrace(deadrecd_path, plotname, True, 'r', 'Simulated Controller')
 PathTrace(filtered_path, plotname, True, 'b', 'Filtered Data')
 PathTrace(groundtruth_path, plotname, True, 'g', 'Ground Truth Data')
-plot_particles(fig, ax, particles)
+plot_particles(fig, ax, particles, weights)
 plt.show()
+
+assert False
 
 
 # plot measurement range data vs time
@@ -213,7 +225,6 @@ plt.legend()
 plt.show()
 plt.close()
 
-assert False
 
 # plot errors vs time
 plt.figure('Errors vs Time')
