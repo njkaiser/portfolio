@@ -49,14 +49,14 @@
 									<div class="6u 12u$(medium)">
 										<h3>About the Project</h3>
 
-										<p>My final project is more research-oriented than previous projects. I'll be exploring a control methodology for a "soft" robotic arm. <b><a href="https://en.wikipedia.org/wiki/Soft_robotics" target="blank" >Soft robotics</a></b> have gained attention in recent years for applications requiring close human contact. For example, a rigid robot might injure someone if it hits them, even at speeds we wouldn't consider dangerous. Soft robots, however, have some form of mechanical compliance to reduce shock loads to both themselves and their surroundings.</p>
+										<p>For this project, I explored a control methodology for a "soft" robotic arm. <b><a href="https://en.wikipedia.org/wiki/Soft_robotics" target="blank" >Soft robotics</a></b> have gained attention in recent years for applications requiring close human contact. For example, a rigid robot might injure someone if it hits them, even at speeds we wouldn't consider dangerous. Soft robots, however, have some form of mechanical compliance to reduce shock loads to both themselves and their surroundings.</p>
 
 										<p>This allows soft robots to operate in close proximity to people, an imperative for rehabilitation tasks. Research like this is a precursor to safer and more ubiquitous rehab, factory, and household robots.</p>
 
 									</div>
 
 									<div class="6u$ 12u$(medium)">
-										<span class="image fit"><img src="images/control1.jpg" alt="qb move variable-stiffness motor" /></span>
+										<span class="image fit"><img src="images/control1.jpg" alt="qb arm early prototype hardware" /></span>
 									</div>
 
 								</div>
@@ -65,32 +65,43 @@
 
 								<h3 align="left">Skills Involved</h3>
 								<ul>
-									<li align="left"><b><a href="https://en.wikipedia.org/wiki/Model_predictive_control" target="blank" >Model Predictive Control (MPC)</a></b></li>
-									<li align="left">Optimal control methods</li>
-									<li align="left">Machine learning for robotics</li>
-									<li align="left">High-dimension control spaces</li>
-									<li align="left">Rehabilitation robotics</li>
-									<li align="left">ROS</li>
 									<li align="left">C++</li>
+									<li align="left">Large project architecture</li>
+									<li align="left"><b><a href="http://wiki.ros.org/ros_control" target="blank" >ROS Control</a></b></li>
+									<li align="left">Action servers/clients and actionlib</li>
+									<li align="left">High-dimension control spaces</li>
+									<li align="left">Inverse Kinematics</li>
+									<li align="left"><b><a href="http://moveit.ros.org/" target="blank" >MoveIt!</a></b></li>
+									<li align="left">Soft robotics</li>
+									<li align="left">Matlab</li>
+									<li align="left">Human-robot interaction, shared control</li>
+									<li align="left">Rehabilitation robotics</li>
+									<li align="left">Teleoperation &amp; joystick control</li>
 								</ul>
 
 								<hr />
 
-								<h3 align="left">Current Status</h3>
+								<!--
+								now have fully functional development platform that works with ILC!
+								-->
+
+								<h3 align="left">Procedure</h3>
+
+								<p>In order to use the hardware, I first had to flash updated firmware, set up the underlying hardware interface, and integrate the robot with ROS. This was relatively straightforward, but only allowed for simple control tasks, such as sending individual motor positions or stiffnesses from a command line. In order to make it more useful, this basic functionality was incorporated into a ROS node, providing a basic API for full arm state control, including all six degrees-of-freedom for joint position, stiffness, and Cartesian position. Handy safety features (<i>e.g.</i> position and stiffness rate control, to prevent jerking) were also incorporated at this level.</p>
+
+								<p>From these primitives, higher level behaviors could be built. Joystick control, for example, is extremely useful for experiments investigating human intent for reaching and grasping tasks. Integrating MoveIt also enables easy integration of planning software and workspace simulation. With this suite of tools in place, we now have a useful development platform ready for advanced projects!</p>
 
 								<p>The special aspect of this project lies in the <b><a href="http://www.qbrobotics.com/products/qbmove-maker-pro/" target="blank" >somewhat odd-looking motors</a></b>, which are cube-shaped and relatively large for the amount of torque they provide. Inside, there are actually 2 motors attached to a single output shaft - the manufacturer has a helpful animation of the internals about halfway down on their <b><a href="http://www.qbrobotics.com" target="blank" >homepage</a></b>.</p>
 
 								<p>These motors are attached to the output shaft in series using elastic belts. If the motors aren't spun in unison, the elastic bands are stretched, producing opposing forces and raising the effective stiffness of the output. Essentially, this grants full control of both position <i>and</i> stiffness at each joint.</p>
 
-								<p>Today's "normal" robots don't have this extra element, and thus employ a very different control strategy from soft robots. In fact, contemporary strategies typically eliminate the desired softness altogether in pursuit of high accuracy. An emerging and promising strategy to resolve this conflict is called <b><a href="https://en.wikipedia.org/wiki/Iterative_learning_control" target="blank" >Iterative Learning Control</a></b> (ILC). ILC uses machine learning to learn intrinsic system properties that may be hard to model. For this project, we hope to learn how the mass and momentum of the arm affect the dynamics of the system, allowing an optimized, minimal-stiffness trajectory to be found and utilized for similar subsequent motions.</p>
-
-								<p>I start working on this full-time in September, and am very excited to start breaking new ground!</p>
+								<p>Today's "normal" robots don't have this extra element, and thus employ a very different control strategy from soft robots. In fact, contemporary strategies typically eliminate the desired softness altogether in pursuit of high accuracy. An emerging and promising strategy to resolve this conflict is called <b><a href="https://en.wikipedia.org/wiki/Iterative_learning_control" target="blank" >Iterative Learning Control</a></b> (ILC). ILC uses machine learning to learn intrinsic system properties that may be hard to model. For this project, we hoped to learn how the unmodelable and inconsistent behaviours of the arm (think friction) might affect the dynamics of the system, allowing an optimized, minimal-stiffness trajectory to be found and utilized for subsequent motions.</p>
 
 								<hr />
 
 								<h3>Learn More</h3>
 
-								<p>Nested in the <b><a href="https://www.sralab.org/labs/assistive-rehabilitation-robotics-laboratory" target="blank" >Assistive &amp; Rehabilitation Robotics Lab</a></b> at Shirley Ryan, research like this is helping advance the independence and quality of life </p>
+								<p>Nested in the <b><a href="https://www.sralab.org/labs/assistive-rehabilitation-robotics-laboratory" target="blank" >Assistive &amp; Rehabilitation Robotics Lab</a></b> at Shirley Ryan, research like this is helping advance the future independence and quality of life for those affected by physical impairments. This work was completed in collaboration with the University of Pisa's <b><a href="http://www.centropiaggio.unipi.it/research/robotics" target="blank" >Centro E. Piaggio</a></b> and <b><a href="http://www.qbrobotics.com/" target="blank" >qb robotics</a></b>. The software is not entirely open-source, so please contact me if you have questions.</p>
 
 							</div>
 						</section>
