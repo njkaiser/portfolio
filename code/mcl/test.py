@@ -2,7 +2,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
-from control import motion_model
+from motion import motion_model
 from fileinit import parse_odometry, parse_measurement, parse_groundtruth, parse_landmarks
 # from measure import measurement_model, calc_expected_measurement
 from plot import PathTrace, plot_particles

@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
 
     ### ARRAY TEST:
-    from control import motion_model
+    from motion import motion_model
     from params import u_noise
     from definitions import ControlStamped
 

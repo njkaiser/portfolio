@@ -3,7 +3,7 @@
 import numpy as np
 import scipy.stats
 from params import nparticles, u_noise, z_noise
-from control import motion_model
+from motion import motion_model
 from measure import measurement_model
 
 
