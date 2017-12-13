@@ -48,7 +48,8 @@ expected_measurements = []
 j, k = 0, 0 # various indices
 distance_sum = 0
 angle_sum = 0
-imin = next(u[0] for u in enumerate(U) if u[1].t > Z[0].t) - 1 # otherwise we might incorporate first measurement multiple times
+imin = next(u[0] for u in enumerate(U) if u[1].t > Z[0].t) - 1 # otherwise we could incorporate first measurement many times
+print "IMIN:", imin
 
 end = time()
 print "setup time:", end - start
@@ -63,6 +64,7 @@ print "setup time:", end - start
 start = time()
 deadrec_pose = GT[0]
 print "running main loop for", N, "iterations..."
+blah = N/50.
 for i in tqdm(xrange(N)):
     ##### MOTION UPDATE #####
     deadrec_pose = motion_model(U[i], deadrec_pose)
@@ -82,7 +84,7 @@ for i in tqdm(xrange(N)):
     angle_sum += abs(deadrecd_path[-1].x - deadrecd_path[-2].x) # running sum of angular distance traveled
 
     # DEBUG
-    if i%10 == 0:
+    if i%int(blah) == 0:
         particles = np.vstack((particles, PF.chi));
         weights = np.vstack((weights, PF.w));
 
@@ -92,10 +94,11 @@ for i in tqdm(xrange(N)):
     #     weights = np.vstack((weights, PF.w))
 
     # incorporate measurements up to the current control step's time
-    while Z[k].t <= U[i].t and k < len(Z) - 1: k += 1;
-    if k >= len(Z) - 1: continue; # there's no more measurement data to process or the first measurement hasn't come yet, skip rest of loop
-    #  or Z[k].t > U[i].t
-    #  or i < imin
+    measurements_to_incorporate = []
+    while Z[k].t < U[i].t and k < len(Z) - 1:
+        measurements_to_incorporate.append(Z[k])
+        k += 1;
+    # print "measurements for i, k:", i, k
 
     # DEBUG:
     try:
@@ -105,15 +108,27 @@ for i in tqdm(xrange(N)):
     except KeyError:
         pass
 
+    if k >= len(Z) - 1 or not measurements_to_incorporate: continue; # there's no measurement to process
+
     ##### MEASUREMENT UPDATE #####
     # if 1:
     if distance_sum > 0.01 or angle_sum > 0.01: # only filter if we've moved (otherwise particle variance issues)
-        if PF.measurement_update(Z[k], LM): # update weights based on measurement
-            print "i, j, k:", i, j, k
-            PF.resample() # only resample if measurement is to a valid landmark
-            distance_sum = 0 # reset to 0 once we've incorporated a measurement
-            angle_sum = 0 # reset to 0 once we've incorporated a measurement
-            k += 1 # prevents us from using the same measurement multiple times
+        # try:
+        #     print U[i-1].t, U[i].t
+        # except:
+        #     print 0.00, U[i].t
+        for z in measurements_to_incorporate:
+            # print "i, k:", i, k
+            # try:
+            # print "\t", z.t
+            # except:
+                # pass
+            if PF.measurement_update(z, LM): # update weights based on measurement
+
+                PF.resample() # only resample if measurement is to a valid landmark
+                distance_sum = 0 # reset to 0 once we've incorporated a measurement
+                angle_sum = 0 # reset to 0 once we've incorporated a measurement
+                # k += 1 # prevents us from using the same measurement multiple times
 
 
     # particles = np.vstack((particles, PF.chi))
@@ -174,6 +189,9 @@ for i in tqdm(xrange(N)):
     #     plot_particles(fig, ax, particles)
     #     plt.show()
 
+    # if i > 10:
+    #     assert False
+
 
 end = time()
 print "elapsed time for main loop:", end - start
@@ -200,30 +218,28 @@ PathTrace(groundtruth_path, plotname, True, 'g', 'Ground Truth Data')
 plot_particles(fig, ax, particles, weights)
 plt.show()
 
-assert False
-
 
 # plot measurement range data vs time
-plt.figure('range measurements vs time')
-plt.subplot(111)
-plt.scatter([z.t for z in measurements], [z.r for z in measurements], color='b', label="Measurement Actual Range")
-plt.scatter([z.t for z in expected_measurements], [z.r for z in expected_measurements], color='g', label="Groundtruth Expected Range")
-plt.xlabel('time [s]')
-plt.ylabel('position [m]')
-plt.legend()
-plt.show()
-plt.close()
-
-# plot measurement bearing data vs time
-plt.figure('bearing measurements vs time')
-plt.subplot(111)
-plt.scatter([z.t for z in measurements], [z.b for z in measurements], color='b', label="Measurement Actual Range")
-plt.scatter([z.t for z in expected_measurements], [z.b for z in expected_measurements], color='g', label="Groundtruth Expected Range")
-plt.xlabel('time [s]')
-plt.ylabel('position [m]')
-plt.legend()
-plt.show()
-plt.close()
+# plt.figure('range measurements vs time')
+# plt.subplot(111)
+# plt.scatter([z.t for z in measurements], [z.r for z in measurements], color='b', label="Measurement Actual Range")
+# plt.scatter([z.t for z in expected_measurements], [z.r for z in expected_measurements], color='g', label="Groundtruth Expected Range")
+# plt.xlabel('time [s]')
+# plt.ylabel('position [m]')
+# plt.legend()
+# plt.show()
+# plt.close()
+#
+# # plot measurement bearing data vs time
+# plt.figure('bearing measurements vs time')
+# plt.subplot(111)
+# plt.scatter([z.t for z in measurements], [z.b for z in measurements], color='b', label="Measurement Actual Range")
+# plt.scatter([z.t for z in expected_measurements], [z.b for z in expected_measurements], color='g', label="Groundtruth Expected Range")
+# plt.xlabel('time [s]')
+# plt.ylabel('position [m]')
+# plt.legend()
+# plt.show()
+# plt.close()
 
 
 # plot errors vs time
@@ -244,6 +260,9 @@ plt.ylabel('error [m]')
 plt.legend()
 plt.show()
 plt.close()
+
+
+assert False
 
 
 # plot x position vs time

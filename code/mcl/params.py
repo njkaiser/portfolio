@@ -2,7 +2,7 @@
 
 
 ### FILENAMES:
-dataset = 'ds1' # choices are ds0 or ds1
+dataset = 'ds0' # choices are ds0 or ds1
 odometry_file_name = dataset + '/' + dataset + '_Odometry.dat'
 measurement_file_name = dataset + '/' + dataset + '_Measurement.dat'
 groundtruth_file_name = dataset + '/' + dataset + '_Groundtruth.dat'
@@ -11,7 +11,7 @@ barcode_file_name = dataset + '/' + dataset + '_Barcodes.dat'
 
 
 ### MAIN PROGRAM OPTIONS:
-N = 1000 # clip data for quicker development
+N = 100000 # clip data for quicker development
 
 
 ### FILTER PARAMETERS:
