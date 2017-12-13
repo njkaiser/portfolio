@@ -9,7 +9,7 @@ from motion import motion_model
 from fileinit import parse_odometry, parse_measurement, parse_groundtruth, parse_landmarks
 from measure import measurement_model, calc_expected_measurement
 from plot import PathTrace, plot_particles
-from params import N
+from params import N, i0
 from definitions import Control, ControlStamped, Pose, PoseStamped, Measurement, MeasurementStamped
 from particle_filter import particle_filter
 try:
@@ -32,12 +32,15 @@ LM = parse_landmarks()   # landmark data
 N  = min(len(U), N)      # cap max iterations at length of control data
 
 # initialize particle filter object
-PF = particle_filter(GT[0])
+gt_i0 = next(i for i, gt in enumerate(GT) if gt.t > U[i0].t)
+ # = next(gt[0] for gt in enumerate(GT) if GT[1].t > U[i0].t) - 1
+PF = particle_filter(GT[gt_i0])
+
 
 # containers for storing data for plotting later
-deadrecd_path = [GT[0]] # begin fully localized
-filtered_path = [GT[0]] # begin fully localized
-groundtruth_path = [GT[0]]
+deadrecd_path = [GT[gt_i0]] # begin fully localized
+filtered_path = [GT[gt_i0]] # begin fully localized
+groundtruth_path = [GT[gt_i0]]
 particles = PF.chi # seed with initial particle set
 weights = PF.w # seed with initial particle weights
 
@@ -45,7 +48,7 @@ weights = PF.w # seed with initial particle weights
 measurements = []
 expected_measurements = []
 
-j, k = 0, 0 # various indices
+j, k = gt_i0, 0 # various indices
 distance_sum = 0
 angle_sum = 0
 imin = next(u[0] for u in enumerate(U) if u[1].t > Z[0].t) - 1 # otherwise we could incorporate first measurement many times
@@ -62,10 +65,10 @@ print "setup time:", end - start
 
 # fig, ax = plt.subplots() ### DEBUG
 start = time()
-deadrec_pose = GT[0]
+deadrec_pose = GT[gt_i0]
 print "running main loop for", N, "iterations..."
-blah = N/50.
-for i in tqdm(xrange(N)):
+blah = N/80.
+for i in tqdm(xrange(i0, i0 + N)):
     ##### MOTION UPDATE #####
     deadrec_pose = motion_model(U[i], deadrec_pose)
     PF.motion_update(U[i])
@@ -87,6 +90,21 @@ for i in tqdm(xrange(N)):
     if i%int(blah) == 0:
         particles = np.vstack((particles, PF.chi));
         weights = np.vstack((weights, PF.w));
+
+        # FOR GIF ONLY:
+        fig, ax = plt.subplots()
+        plotname = 'HW0, Part A, #3 -Simulated Controller vs Ground Truth Data'
+        PathTrace(deadrecd_path, plotname, True, 'r', 'Simulated Controller')
+        PathTrace(filtered_path, plotname, True, 'b', 'Filtered Data')
+        PathTrace(groundtruth_path, plotname, True, 'g', 'Ground Truth Data')
+        plot_particles(fig, ax, PF.chi, weights)
+        plt.savefig("gif/frame_"+str(i), bbox_inches='tight', dpi=200)
+        # savefig(fname, dpi=None, facecolor='w', edgecolor='w',
+        # orientation='portrait', papertype=None, format=None,
+        # transparent=False, bbox_inches=None, pad_inches=0.1,
+        # frameon=None)
+        # plt.show()
+        plt.close()
 
     # DEBUG
     # if i%4 == 0:# and i > 550:
