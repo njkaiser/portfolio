@@ -73,7 +73,7 @@
 
 										<p>The adjacent graphic illustrates my RRT navigating Northwestern's 'N' logo. The initial and goal positions are shrouded by the N, which can be computationally expensive for some algorithms to handle. An RRT can generate a rough path quickly and later smooth it for traversal, or use it to guide a slower, but highly-optimized primary algorithm.</p>
 
-										<p>Get the code <b><a href="https://github.com/njkaiser/portfolio/tree/gh-pages/code/RRT" target="blank" > here</a></b>.</p>
+										<p>Get the code <b><a href="https://github.com/njkaiser/portfolio/tree/gh-pages/code/rrt" target="blank" > here</a></b>.</p>
 
 									</div>
 								</div>
@@ -99,9 +99,25 @@
 
 								<div class="row">
 									<div class="6u 12u$(medium)">
-										<span class="image fit"><img src="images/mlai3.jpg" alt="Comparison of the different dead-reckoning methods" /></span>
+										<span class="image fit"><img src="images/mlai3.gif" alt="Particle filter correctly tracking the groundtruth" /></span>
 									</div>
 									<div class="6u$ 12u$(medium)">
+										<h3>Monte Carlo Localization</h3>
+										<p>A <b><a href="https://en.wikipedia.org/wiki/Monte_Carlo_localization" target="blank" >Monte Carlo Localization</a></b> (MCL) is a powerful localization algorithm. At the core of MCL is a particle filter, a non-parametric approximation of a Bayesian filter (<i>e.g.</i> Kalman). Particle filters represent the robot's posterior by particles, or individual <i>possible</i> states of the robot.</p>
+
+										<p>The accompanying animation shows the particle filter I implemented (blue line) correctly tracking the ground truth path (green line). For reference, the purely dead-reckoned path is shown in red. Looking very closely at the forefront of the blue path, you can make out the particle cloud (black arrows), although they're hard to distinguish due to their density - there are 500 in close quarters. If you observe closely, you'll see the particles splay out each step, and those towards the edge of the cloud eventually disappear after the resampling step.</p>
+
+										<p>Localization techniques such as this are at the core of SLAM and autonomous navigation technology, and implementing one from scratch was a great learning experience!</p>
+
+										<p>Check out the implementation <b><a href="https://github.com/njkaiser/portfolio/tree/gh-pages/code/mcl" target="blank" > here</a></b>.</p>
+
+									</div>
+								</div>
+
+								<hr />
+
+								<div class="row">
+									<div class="6u 12u$(medium)">
 										<h3>Neural Networks &amp; LWLR</h3>
 										<p>For this project, two Machine Learning algorithms were implemented and explored. <b><a href="https://en.wikipedia.org/wiki/Artificial_neural_network" target="blank" > Neural Networks</a></b> and <b><a href="https://en.wikipedia.org/wiki/Local_regression" target="blank" > Locally Weighted Linear Regression</a></b> (LWLR) were both tested on a data set from a prior mini-project. The goal was to learn and eliminate any hidden systematic error in a robot's dead-reckoned path. As can be seen in the accompanying figure, both algorithms were able to outperform pure dead reckoning.</p>
 
@@ -109,6 +125,9 @@
 
 										<p>Get the code <b><a href="https://github.com/njkaiser/portfolio/tree/gh-pages/code/ml" target="blank" > here</a></b>.</p>
 
+									</div>
+									<div class="6u$ 12u$(medium)">
+										<span class="image fit"><img src="images/mlai4.jpg" alt="Comparison of the different dead-reckoning methods" /></span>
 									</div>
 								</div>
 
