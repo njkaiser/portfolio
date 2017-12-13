@@ -29,7 +29,7 @@ U  = parse_odometry()    # odometry data
 Z  = parse_measurement() # measurement data
 GT = parse_groundtruth() # groundtruth data
 LM = parse_landmarks()   # landmark data
-N  = min(len(U), N)      # cap max iterations at length of control data
+N  = min(len(U)-i0, N)   # cap max iterations at length of control data
 
 # initialize particle filter object
 gt_i0 = next(i for i, gt in enumerate(GT) if gt.t > U[i0].t)
@@ -87,24 +87,24 @@ for i in tqdm(xrange(i0, i0 + N)):
     angle_sum += abs(deadrecd_path[-1].x - deadrecd_path[-2].x) # running sum of angular distance traveled
 
     # DEBUG
-    if i%int(blah) == 0:
-        particles = np.vstack((particles, PF.chi));
-        weights = np.vstack((weights, PF.w));
-
-        # FOR GIF ONLY:
-        fig, ax = plt.subplots()
-        plotname = 'HW0, Part A, #3 -Simulated Controller vs Ground Truth Data'
-        PathTrace(deadrecd_path, plotname, True, 'r', 'Simulated Controller')
-        PathTrace(filtered_path, plotname, True, 'b', 'Filtered Data')
-        PathTrace(groundtruth_path, plotname, True, 'g', 'Ground Truth Data')
-        plot_particles(fig, ax, PF.chi, weights)
-        plt.savefig("gif/frame_"+str(i), bbox_inches='tight', dpi=200)
-        # savefig(fname, dpi=None, facecolor='w', edgecolor='w',
-        # orientation='portrait', papertype=None, format=None,
-        # transparent=False, bbox_inches=None, pad_inches=0.1,
-        # frameon=None)
-        # plt.show()
-        plt.close()
+    # if i%int(blah) == 0:
+    #     particles = np.vstack((particles, PF.chi));
+    #     weights = np.vstack((weights, PF.w));
+    #
+    #     # FOR GIF ONLY:
+    #     fig, ax = plt.subplots()
+    #     plotname = 'HW0, Part A, #3 -Simulated Controller vs Ground Truth Data'
+    #     PathTrace(deadrecd_path, plotname, True, 'r', 'Simulated Controller')
+    #     PathTrace(filtered_path, plotname, True, 'b', 'Filtered Data')
+    #     PathTrace(groundtruth_path, plotname, True, 'g', 'Ground Truth Data')
+    #     plot_particles(fig, ax, PF.chi, weights)
+    #     plt.savefig("gif/frame_"+str(i), bbox_inches='tight', dpi=200)
+    #     # savefig(fname, dpi=None, facecolor='w', edgecolor='w',
+    #     # orientation='portrait', papertype=None, format=None,
+    #     # transparent=False, bbox_inches=None, pad_inches=0.1,
+    #     # frameon=None)
+    #     # plt.show()
+    #     plt.close()
 
     # DEBUG
     # if i%4 == 0:# and i > 550:
@@ -233,7 +233,7 @@ plotname = 'HW0, Part A, #3 -Simulated Controller vs Ground Truth Data'
 PathTrace(deadrecd_path, plotname, True, 'r', 'Simulated Controller')
 PathTrace(filtered_path, plotname, True, 'b', 'Filtered Data')
 PathTrace(groundtruth_path, plotname, True, 'g', 'Ground Truth Data')
-plot_particles(fig, ax, particles, weights)
+# plot_particles(fig, ax, particles, weights)
 plt.show()
 
 

@@ -12,7 +12,7 @@ barcode_file_name = dataset + '/' + dataset + '_Barcodes.dat'
 
 ### MAIN PROGRAM OPTIONS:
 i0 = 550
-N = 400 # clip data for quicker development
+N = 100000 # clip data for quicker development
 
 
 ### FILTER PARAMETERS:
